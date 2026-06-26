@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Nexura</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<center>
+
+    <h1>Registrar usuario</h1>
+
+    <img src="img/logo.png" alt="logo Nexura" class="logo">
+
+    <h2>Crear cuenta</h2>
+
+    <!-- FORMULARIO DE REGISTRO -->
+    <form action="registro.php" method="POST">
+
+        <!-- Nombre -->
+        <label class="label">Nombre:</label>
+        <input type="text" name="nombre" class="input" required>
+
+        <br><br>
+
+        <!-- Correo -->
+        <label class="label">Correo:</label>
+        <input type="email" name="correo" class="input" required>
+
+        <br><br>
+
+        <!-- Contraseña -->
+        <label class="label">Contraseña:</label>
+        <input type="password" name="password" class="input" required>
+
+        <br><br>
+
+        <!-- BOTÓN GUARDAR -->
+        <button type="submit" class="btn-entrar">
+            Guardar usuario
+        </button>
+
+    </form>
+
+    <br>
+
+    <!-- VOLVER -->
+    <a href="login.html">
+        <button class="btn-registro">
+            Volver al login
+        </button>
+    </a>
+
+</center>
+
+</body>
+</html>

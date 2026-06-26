@@ -1,0 +1,131 @@
+/* Página */
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color:white;
+}
+
+/* Logo */
+.logo{
+    width:350px;
+    margin-bottom:-100px;
+}
+
+/* Títulos */
+h1{
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+h2{
+    font-size:30px;
+    margin-bottom:40px;
+}
+
+/* Etiquetas */
+.label{
+    display:inline-block;
+    width:120px;
+    text-align:right;
+    margin-right:10px;
+    font-weight:bold;
+}
+
+/* Campos */
+.input{
+    width:350px;
+    padding:12px;
+    border:1px solid #d9d9d9;
+    border-radius:10px;
+    font-size:16px;
+}
+
+/* Contenedor botones */
+.botones{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin-top:15px;
+}
+
+/* Botón Entrar */
+.btn-entrar{
+    width:170px;
+    padding:12px;
+    border:none;
+    border-radius:25px;
+    background-color:#2563eb;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+/* Botón Añadir Usuario */
+.btn-registro{
+    width:170px;
+    padding:12px;
+    border:none;
+    border-radius:25px;
+    background-color:#10b981;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+/* Hover */
+.btn-entrar:hover{
+    background-color:#1d4ed8;
+}
+
+.btn-registro:hover{
+    background-color:#059669;
+}
+
+/* Título de registro */
+.titulo-registro{
+    color:#2563eb;
+    font-size:36px;
+    margin-bottom:30px;
+}
+
+/* Contenedor del formulario */
+.form-registro{
+    margin-top:20px;
+}
+
+/* Campos del registro */
+.campo-registro{
+    margin-bottom:20px;
+}
+
+/* Botón Guardar Usuario */
+.btn-guardar{
+    width:200px;
+    padding:12px;
+    border:none;
+    border-radius:25px;
+    background-color:#2563eb;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.btn-guardar:hover{
+    background-color:#1d4ed8;
+}
+
+/* Botón Volver */
+.btn-volver{
+    width:200px;
+    padding:12px;
+    border:none;
+    border-radius:25px;
+    background-color:#10b981;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.btn-volver:hover{
+    background-color:#059669;
+}

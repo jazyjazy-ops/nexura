@@ -16,8 +16,8 @@
 
     <h2>Crear cuenta</h2>
 
-    <!-- FORMULARIO DE REGISTRO -->
-    <form action="registro.php" method="POST">
+
+    <form id="registroForm">
 
         <!-- Nombre -->
         <label class="label">Nombre:</label>
@@ -34,6 +34,16 @@
         <!-- Contraseña -->
         <label class="label">Contraseña:</label>
         <input type="password" name="password" class="input" required>
+
+        <br><br>
+
+        <label class="label">Departamento:</label>
+        <select class="input" name="departamento">
+            <option value="almacen">Almacen</option>
+            <option value="ingenieria">Ingenieria</option>
+            <option value="ventas">Ventas</option>
+            <option value="administracion">Administracion</option>
+        </select>
 
         <br><br>
 
@@ -54,6 +64,6 @@
     </a>
 
 </center>
-
+<script src="registro.js"></script>
 </body>
 </html>

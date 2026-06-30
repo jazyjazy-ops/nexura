@@ -1,17 +1,17 @@
-/* Página */
+
 body{
     margin:0;
     font-family: Arial, Helvetica, sans-serif;
     background-color:white;
 }
 
-/* Logo */
+
 .logo{
     width:350px;
     margin-bottom:-100px;
 }
 
-/* Títulos */
+
 h1{
     font-size:48px;
     margin-bottom:10px;
@@ -22,7 +22,7 @@ h2{
     margin-bottom:40px;
 }
 
-/* Etiquetas */
+
 .label{
     display:inline-block;
     width:120px;
@@ -31,7 +31,7 @@ h2{
     font-weight:bold;
 }
 
-/* Campos */
+
 .input{
     width:350px;
     padding:12px;
@@ -40,7 +40,7 @@ h2{
     font-size:16px;
 }
 
-/* Contenedor botones */
+
 .botones{
     display:flex;
     justify-content:center;
@@ -48,7 +48,7 @@ h2{
     margin-top:15px;
 }
 
-/* Botón Entrar */
+
 .btn-entrar{
     width:170px;
     padding:12px;
@@ -60,7 +60,7 @@ h2{
     cursor:pointer;
 }
 
-/* Botón Añadir Usuario */
+
 .btn-registro{
     width:170px;
     padding:12px;
@@ -72,7 +72,7 @@ h2{
     cursor:pointer;
 }
 
-/* Hover */
+
 .btn-entrar:hover{
     background-color:#1d4ed8;
 }
@@ -81,24 +81,23 @@ h2{
     background-color:#059669;
 }
 
-/* Título de registro */
+
 .titulo-registro{
     color:#2563eb;
     font-size:36px;
     margin-bottom:30px;
 }
 
-/* Contenedor del formulario */
+
 .form-registro{
     margin-top:20px;
 }
 
-/* Campos del registro */
 .campo-registro{
     margin-bottom:20px;
 }
 
-/* Botón Guardar Usuario */
+
 .btn-guardar{
     width:200px;
     padding:12px;
@@ -114,7 +113,7 @@ h2{
     background-color:#1d4ed8;
 }
 
-/* Botón Volver */
+
 .btn-volver{
     width:200px;
     padding:12px;
@@ -129,3 +128,4 @@ h2{
 .btn-volver:hover{
     background-color:#059669;
 }
+

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcas - Nexura</title>
+    <link rel="stylesheet" href="marcas.css">
+</head>
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo-panel">
+            <img src="img/logo.png" alt="Logo Nexura">
+            <h2>Nexura</h2>
+        </div>
+
+        <ul class="menu">
+            <li>🏠 Panel general</li>
+            <li>📦 Inventario</li>
+            <li class="activo">🏷️ Marcas</li>
+            <li>🧪 Productos</li>
+            <li>📊 Reporte de movimientos</li>
+        </ul>
+
+    </div>
+
+    <div class="contenido">
+
+        <div class="encabezado">
+            <h1>Marcas / Proveedores</h1>
+            <div class="usuario">👤 Administrador</div>
+        </div>
+
+        <div class="barra-acciones">
+            <input type="text" placeholder="Buscar por nombre o ID">
+            <button class="btn-filtrar">Filtrar</button>
+            <button class="btn-agregar" onclick="abrirModal()">Agregar</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marca</th>
+                    <th>Descripción</th>
+                    <th>Consultar productos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>583674</td>
+                    <td>BD Vacutainer</td>
+                    <td>Material clínico y laboratorio</td>
+                    <td>
+                        <button class="btn-consultar">Consultar productos</button>
+                    </td>
+                    <td>
+                        <button class="btn-editar">Editar</button>
+                        <button class="btn-eliminar">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="modal" id="modalMarca">
+
+            <div class="modal-contenido">
+
+                <h2>Agregar marca</h2>
+
+                <label>Nombre de la marca:</label>
+                <input type="text">
+
+                <label>Descripción:</label>
+                <input type="text">
+
+                <div class="botones-modal">
+                    <button class="btn-agregar">Guardar</button>
+                    <button class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+<script>
+    function abrirModal(){
+        document.getElementById("modalMarca").style.display = "flex";
+    }
+
+    function cerrarModal(){
+        document.getElementById("modalMarca").style.display = "none";
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Nexura</title>
+    <link rel="stylesheet" href="inventario.css">
+</head>
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo-panel">
+            <img src="img/logo.png" alt="Logo Nexura">
+            <h2>Nexura</h2>
+        </div>
+
+        <ul class="menu">
+            <li>🏠 Panel general</li>
+            <li class="activo">📦 Inventario</li>
+            <li>🏷️ Marcas</li>
+            <li>🧪 Productos</li>
+            <li>📊 Reporte de movimientos</li>
+        </ul>
+
+    </div>
+
+    <div class="contenido">
+
+        <div class="encabezado">
+            <h1>Inventario</h1>
+            <div class="usuario">👤 Administrador</div>
+        </div>
+
+        <div class="barra-acciones">
+            <input type="text" placeholder="Buscar por nombre, ID, categoría">
+
+            <button class="btn-filtrar">Filtrar</button>
+            <button class="btn-agregar" onclick="abrirModal()">Agregar</button>
+        </div>
+        <div class="modal" id="modalProducto">
+
+    <div class="modal-contenido">
+
+        <h2>Agregar producto</h2>
+
+        <label>Nombre del producto:</label>
+        <input type="text">
+
+        <label>Categoría:</label>
+        <input type="text">
+
+        <label>Stock:</label>
+        <input type="number">
+
+        <label>Caducidad:</label>
+        <input type="date">
+
+        <label>Precio:</label>
+        <input type="number">
+
+        <div class="botones-modal">
+            <button class="btn-agregar">Guardar</button>
+            <button class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
+           
+        </div>
+
+    </div>
+
+</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID del producto</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Caducidad</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>583674</td>
+                    <td>Licuadora</td>
+                    <td>Electrodoméstico</td>
+                    <td>33</td>
+                    <td>2026-12-10</td>
+                    <td>$580</td>
+                    <td><span class="estado normal">Normal</span></td>
+                    <td>
+                        <button class="btn-editar">Editar</button>
+                        <button class="btn-eliminar">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+<script>
+    function abrirModal(){
+        document.getElementById("modalProducto").style.display = "flex";
+    }
+
+    function cerrarModal(){
+        document.getElementById("modalProducto").style.display = "none";
+    }
+</script>
+</body>
+</html>

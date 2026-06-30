@@ -1,7 +1,7 @@
 document.getElementById("loginForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
-    const correo = document.querySelector('input[name="correo"]').value;
+    const nombre = document.querySelector('input[name="nombre"]').value;
     const password = document.querySelector('input[name="password"]').value;
 
     try {
@@ -10,7 +10,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email: correo, password: password }) 
+            body: JSON.stringify({ nombre: nombre, password: password }) 
         });
 
         const data = await res.json();
@@ -18,9 +18,9 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
         if (res.ok && data.token) {
             
             localStorage.setItem('nexura_token', data.token);
-            localStorage.setItem('nexura_usuario', JSON.stringify(data.usuario));
+            localStorage.setItem('nexura_usuario', JSON.stringify(data.user));
 
-            alert(`¡Bienvenido(a) ${data.usuario.nombre}!`);
+            alert(`¡Bienvenido(a) ${data.user.nombre}!`);
             window.location.href = "panel.html";
         } else {
             alert(data.Mensaje || "Error al iniciar sesión");

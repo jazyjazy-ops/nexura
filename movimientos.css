@@ -61,9 +61,9 @@ body{
     font-weight:bold;
 }
 
-/* ========================= */
-/* CONTENIDO */
-/* ========================= */
+.contenido h1{
+    margin-left: 50px;
+}
 
 .contenido{
     flex:1;
@@ -84,9 +84,6 @@ body{
     box-shadow:0 2px 6px rgba(0,0,0,.15);
 }
 
-/* ========================= */
-/* BARRA DE ACCIONES */
-/* ========================= */
 
 .barra-acciones{
     display:flex;
@@ -120,9 +117,7 @@ body{
     background:#10b981;
 }
 
-/* ========================= */
-/* TABLA */
-/* ========================= */
+
 
 table{
     width:100%;

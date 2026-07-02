@@ -6,12 +6,11 @@
     <title>Panel General - Nexura</title>
 
     <link rel="stylesheet" href="panel.css">
-    
+    <link rel="stylesheet" href="menu.css">
 </head>
 <body>
-
-    <!-- Menú lateral -->
-    <div class="sidebar">
+<button class="menu-btn" onclick="abrirMenu()">☰</button>
+    <div class="sidebar" id="sidebar">
 
         <div class="logo-panel">
             <img src="img/logo.png" alt="Logo Nexura">
@@ -19,11 +18,11 @@
         </div>
 
         <ul class="menu">
-            <li class="activo">🏠 Panel general</li>
-            <li>📦 Inventario</li>
-            <li>🏷️ Marcas</li>
-            <li>🧪 Productos</li>
-            <li>📊 Reporte de movimientos</li>
+            <li class="activo"><a href="panel.html">🏠 Panel general</a></li>
+            <li><a href="inventario.html">📦 Inventario</a></li>
+            <li><a href="marcas.html">🏷️ Marcas</a></li>
+            <li><a href="productos.html">🧪 Productos</a></li>
+            <li><a href="movimientos.html">📊 Reporte de movimientos</a></li>
         </ul>
 
     </div>
@@ -104,6 +103,6 @@
         </div>
 
     </div>
-
+<script src="menu.js"></script>
 </body>
 </html>

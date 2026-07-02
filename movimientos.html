@@ -4,22 +4,24 @@
     <meta charset="UTF-8">
     <title>Reporte de Movimientos - Nexura</title>
     <link rel="stylesheet" href="movimientos.css">
+    <link rel="stylesheet" href="menu.css">
 </head>
 <body>
+<button class="menu-btn" onclick="abrirMenu()">☰</button>
 
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="logo-panel">
         <img src="img/logo.png" alt="Logo Nexura">
         <h2>Nexura</h2>
     </div>
 
     <ul class="menu">
-        <li>🏠 Panel general</li>
-        <li>📦 Inventario</li>
-        <li>🏷️ Marcas</li>
-        <li>🧪 Productos</li>
-        <li class="activo">📊 Reporte de movimientos</li>
-    </ul>
+            <li><a href="panel.html">🏠 Panel general</a></li>
+            <li><a href="inventario.html">📦 Inventario</a></li>
+            <li><a href="marcas.html">🏷️ Marcas</a></li>
+            <li><a href="productos.html">🧪 Productos</a></li>
+            <li class="activo"><a href="movimientos.html">📊 Reporte de movimientos</a></li>
+        </ul>
 </div>
 
 <div class="contenido">
@@ -102,6 +104,6 @@
         document.getElementById("modalMovimiento").style.display = "none";
     }
 </script>
-
+<script src="menu.js"></script>
 </body>
 </html>

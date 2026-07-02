@@ -20,13 +20,30 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
             localStorage.setItem('nexura_token', data.token);
             localStorage.setItem('nexura_usuario', JSON.stringify(data.user));
 
-            alert(`¡Bienvenido(a) ${data.user.nombre}!`);
-            window.location.href = "panel.html";
+            Swal.fire({
+                icon: 'success',
+                title:'Acceso concedido',
+                text:`Bienvenido(a) ${data.user.nombre}`,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                 window.location.href = "panel.html";
+            });
+
         } else {
-            alert(data.Mensaje || "Error al iniciar sesión");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de autenticación',
+                text: data.message || 'Credenciales inválidas',
+                confirmButtonColor: '#3085d6'
+            });
         }
     } catch (error) {
         console.error("Error de conexión:", error);
-        alert("Error al conectar con el servidor.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'No se pudo conectar con el servidor'
+        });
     }
 });

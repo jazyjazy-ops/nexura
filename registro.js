@@ -24,14 +24,38 @@ document.getElementById("registroForm").addEventListener("submit", async functio
         const data = await res.json();
 
         if (res.ok) {
-            alert("¡Usuario registrado exitosamente! Ahora puedes iniciar sesión.");
-            
-            window.location.href = "login.html";
+            Swal.fire({
+                icon:'success',
+                title:'¡Registro exitoso!',
+                text:'Cuenta creada correctamente',
+                confirmButtonColor:'#3085d6',
+                confirmButtonText: 'Ir a Iniciar Sesión'
+            }).then((result) => {
+                if (result.isConfirmed){
+                    window.location.href = "login.html";
+                }
+            });
+        } else if (res.status === 409) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Usuario ya existente',
+                text: 'El correo electrónico que intentas registrar ya pertenece a otra cuenta.',
+                confirmButtonColor: '#f39c12'
+            });
         } else {
-            alert(data.Mensaje || data.message || "Error al registrar el usuario");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Error al registrar al usuario',
+                confirmButtonColor: '#f39c12'
+            });
         }
     } catch(error) {
         console.error("Error de conexión:", error);
-        alert("Error al conectar con el servidor. Verifica que Golare esté encendido.");
+        Swal.fire({
+                icon: 'error',
+                title: 'Error de servidor',
+                text: data.message || 'Error al registrar al usuario',
+            });
     }
 });

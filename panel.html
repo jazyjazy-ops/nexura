@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,29 +18,28 @@
         </div>
 
         <ul class="menu">
-            <li class="activo"><a href="panel.html">🏠 Panel general</a></li>
-            <li><a href="inventario.html">📦 Inventario</a></li>
-            <li><a href="marcas.html">🏷️ Marcas</a></li>
-            <li><a href="productos.html">🧪 Productos</a></li>
-            <li><a href="movimientos.html">📊 Reporte de movimientos</a></li>
+            <a href="panel.html"><li class="activo">🏠 Panel general</li></a>
+            <a href="inventario.html"><li>📦 Inventario</li></a>
+            <a href="marcas.html"><li>🏷️ Marcas</li></a>
+            <a href="productos.html"><li>🧪 Productos</li></a>
+            <a href="movimientos.html"><li>📊 Reporte de movimientos</li></a>
+            <a href="#" id="btnCerrarSesion" style="color: #e74c3c;"><li>🚪 Cerrar sesión</li></a>
         </ul>
 
     </div>
 
-    <!-- Contenido -->
     <div class="contenido">
 
         <div class="encabezado">
 
             <h1>Panel general</h1>
 
-            <div class="usuario">
-                👤 Administrador
+            <div class="usuario" id="infoUsuario">
+                👤 <span id="nombreUsuario">Cargando...</span> | <span id="rolUsuario"></span>
             </div>
 
         </div>
 
-        <!-- Tarjetas -->
         <div class="tarjetas">
 
             <div class="tarjeta blanca">
@@ -48,7 +47,7 @@
                     <div class="icono">📦</div>
                     <h3>Total productos</h3>
                 </div>
-                <h1>120</h1>
+                <h1 id="cardTotal">0</h1>
             </div>
 
             <div class="tarjeta verde">
@@ -56,7 +55,7 @@
                     <div class="icono">✅</div>
                     <h3>Stock normal</h3>
                 </div>
-                <h1>95</h1>
+                <h1 id="cardNormal">0</h1>
             </div>
 
             <div class="tarjeta amarilla">
@@ -64,7 +63,7 @@
                     <div class="icono">⚠️</div>
                     <h3>Stock bajo</h3>
                 </div>
-                <h1>20</h1>
+                <h1 id="cardBajo">0</h1>
             </div>
 
             <div class="tarjeta roja">
@@ -72,37 +71,34 @@
                     <div class="icono">❌</div>
                     <h3>Sin stock</h3>
                 </div>
-                <h1>5</h1>
+                <h1 id="cardSinStock">0</h1>
             </div>
 
         </div>
 
-        <!-- Gráficas -->
         <div class="graficas">
 
             <div class="grafica">
-
-                <h2>Costo de stock por categoría</h2>
-
+                <h2>Costo de stock por área</h2>
                 <div class="contenedor-grafica">
-                    Aquí irá la gráfica
+                    <canvas id="graficaCostos"></canvas>
                 </div>
-
             </div>
 
             <div class="grafica">
-
-                <h2>Distribución de productos</h2>
-
+                <h2>Top 5 - Stock Crítico</h2>
                 <div class="contenedor-grafica">
-                    Aquí irá la gráfica
+                    <canvas id="graficaTopCritico"></canvas>
                 </div>
-
             </div>
 
         </div>
 
     </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="menu.js"></script>
+<script src="panel.js"></script>
 </body>
 </html>

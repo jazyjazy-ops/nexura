@@ -153,6 +153,18 @@ td{
     background:#10b981;
 }
 
+.roja{
+    background: #8a0000;
+}
+
+.amarilla{
+    background:#f59e0b;
+}
+
+.negra{
+    background:#000000;
+}
+
 .btn-editar{
     background:#f59e0b;
     color:white;

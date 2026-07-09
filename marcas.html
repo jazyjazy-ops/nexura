@@ -35,7 +35,7 @@
         </div>
 
         <div class="barra-acciones">
-            <input type="text" placeholder="Buscar por nombre o ID">
+            <input type="text" id="inputBusqueda" placeholder="Buscar por nombre o ID">
             <button class="btn-filtrar">Filtrar</button>
             <button class="btn-agregar" onclick="abrirModal()">Agregar</button>
         </div>
@@ -51,19 +51,7 @@
                 </tr>
             </thead>
 
-            <tbody>
-                <tr>
-                    <td>583674</td>
-                    <td>BD Vacutainer</td>
-                    <td>Material clínico y laboratorio</td>
-                    <td>
-                        <button class="btn-consultar">Consultar productos</button>
-                    </td>
-                    <td>
-                        <button class="btn-editar">Editar</button>
-                        <button class="btn-eliminar">Eliminar</button>
-                    </td>
-                </tr>
+            <tbody id="tablaMarcas">
             </tbody>
         </table>
 
@@ -73,16 +61,20 @@
 
                 <h2>Agregar marca</h2>
 
-                <label>Nombre de la marca:</label>
-                <input type="text">
+                <form id="formMarca">
 
-                <label>Descripción:</label>
-                <input type="text">
+                    <label>Nombre de la marca:</label>
+                    <input type="text" id="inputNombre" required>
 
-                <div class="botones-modal">
-                    <button class="btn-agregar">Guardar</button>
-                    <button class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
-                </div>
+                    <label>Descripción:</label>
+                    <input type="text" id="inputDescripcion" required>
+
+                    <div class="botones-modal">
+                        <button type="submit" class="btn-agregar">Guardar</button>
+                        <button type="button" class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
+                    </div>
+
+                </form>
 
             </div>
 
@@ -99,6 +91,10 @@
         document.getElementById("modalMarca").style.display = "none";
     }
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="menu.js"></script>
+<script src="marcas.js"></script>
+
 </body>
 </html>

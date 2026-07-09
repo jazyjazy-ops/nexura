@@ -4,103 +4,267 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario - Nexura</title>
+
     <link rel="stylesheet" href="inventario.css">
     <link rel="stylesheet" href="menu.css">
 </head>
+
 <body>
+
 <button class="menu-btn" onclick="abrirMenu()">☰</button>
-    <div class="sidebar" id="sidebar">
 
-        <div class="logo-panel">
-            <img src="img/logo.png" alt="Logo Nexura">
-            <h2>Nexura</h2>
+<div class="sidebar" id="sidebar">
+
+    <div class="logo-panel">
+        <img src="img/logo.png" alt="Logo Nexura">
+        <h2>Nexura</h2>
+    </div>
+
+    <ul class="menu">
+        <a href="panel.html"><li>🏠 Panel general</li></a>
+        <a href="inventario.html"><li class="activo">📦 Inventario</li></a>
+        <a href="marcas.html"><li>🏷️ Marcas</li></a>
+        <a href="productos.html"><li>🧪 Productos</li></a>
+        <a href="movimientos.html"><li>📊 Reporte de movimientos</li></a>
+        <a href="#" id="btnCerrarSesion" style="color:#e74c3c;">
+            <li>🚪 Cerrar sesión</li>
+        </a>
+    </ul>
+
+</div>
+
+<div class="contenido">
+
+    <div class="encabezado">
+        <h1>Inventario</h1>
+
+        <div class="usuario">
+            👤
+            <span id="nombreUsuario">Cargando...</span>
+            |
+            <span id="rolUsuario"></span>
         </div>
+    </div>
 
-        <ul class="menu">
-            <a href="panel.html"><li>🏠 Panel general</li></a>
-            <a href="inventario.html"><li class="activo">📦 Inventario</li></a>
-            <a href="marcas.html"><li>🏷️ Marcas</li></a>
-            <a href="productos.html"><li>🧪 Productos</li></a>
-            <a href="movimientos.html"><li>📊 Reporte de movimientos</li></a>
-            <a href="#" id="btnCerrarSesion" style="color: #e74c3c;"><li>🚪 Cerrar sesión</li></a>
-        </ul>
+    <div class="barra-acciones">
+
+        <input
+            type="text"
+            id="inputBusqueda"
+            placeholder="Buscar producto, SKU, lote o estado">
+
+        <button class="btn-agregar" id="btnAgregarEntrada">
+            Registrar Entrada
+        </button>
+
+        <button class="btn-agregar" id="btnRegistrarSalida">
+            Registrar Salida
+        </button>
 
     </div>
 
-    <div class="contenido">
+    <!-- MODAL ENTRADA -->
 
-        <div class="encabezado">
-            <h1>Inventario</h1>
-            <div class="usuario" id="infoUsuario">
-                👤 <span id="nombreUsuario">Cargando...</span> | <span id="rolUsuario"></span>
-            </div>
+    <div class="modal" id="modalProducto">
+
+        <div class="modal-contenido">
+
+            <h2>Registrar Entrada de Inventario</h2>
+
+            <form id="formAgregarLote">
+
+                <label>Producto</label>
+
+                <select id="selectProducto" required>
+                    <option value="">Seleccione un producto</option>
+                </select>
+
+                <label>Folio</label>
+
+                <input
+                    type="text"
+                    id="inputFolio"
+                    placeholder="Ej. FAC-001"
+                    required>
+
+                <label>Número de lote</label>
+
+                <input
+                    type="text"
+                    id="inputLote"
+                    required>
+
+                <label>Cantidad inicial</label>
+
+                <input
+                    type="number"
+                    id="inputCantidad"
+                    min="1"
+                    required>
+
+                <label>Fecha de caducidad</label>
+
+                <input
+                    type="date"
+                    id="inputCaducidad"
+                    required>
+
+                <div class="botones-modal">
+
+                    <button
+                        type="submit"
+                        class="btn-agregar">
+                        Guardar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-eliminar"
+                        onclick="cerrarModal()">
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-
-        <div class="barra-acciones">
-            <input type="text" id="inputBusqueda" placeholder="Buscar por nombre, ID, categoría">
- 
-            <button class="btn-filtrar">Filtrar</button>
-            <button class="btn-agregar" onclick="abrirModal()">Agregar</button>
-        </div>
-
-        <div class="modal" id="modalProducto">
-            <div class="modal-contenido">
-                <h2>Registrar Entrada de Inventario (Lote)</h2>
-
-                <form id="formAgregarLote">
-                    <label>Producto:</label>
-                    <select id="selectProducto" required>
-                        <option value="">Cargando productos...</option>
-                    </select>
-
-                    <label>Folio de Documento:</label>
-                    <input type="text" id="inputFolio" placeholder="Ej. FAC-001" required>
-
-                    <label>Número de Lote:</label>
-                    <input type="text" id="inputLote" placeholder="Ej. LOTE-A1" required>
-
-                    <label>Cantidad (Stock entrante):</label>
-                    <input type="number" id="inputCantidad" min="0" required>
-
-                    <label>Caducidad:</label>
-                    <input type="date" id="inputCaducidad" required>
-
-                    <div class="botones-modal">
-                        <button type="submit" class="btn-agregar">Guardar Entrada</button>
-                        <button type="button" class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Lote</th>
-                    <th>Producto</th>
-                    <th>Stock Disponible</th>
-                    <th>Caducidad</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaInventario">
-            </tbody>
-        </table>
 
     </div>
+
+    <!-- MODAL SALIDA -->
+
+    <div class="modal" id="modalSalida">
+
+        <div class="modal-contenido">
+
+            <h2>Registrar Salida</h2>
+
+            <form id="formSalida">
+
+                <label>Producto</label>
+
+                <select
+                    id="selectProductoSalida"
+                    required>
+
+                    <option value="">
+                        Seleccione un producto
+                    </option>
+
+                </select>
+
+                <label>Folio</label>
+
+                <input
+                    type="text"
+                    id="inputFolioSalida"
+                    required>
+
+                <label>Cantidad solicitada</label>
+
+                <input
+                    type="number"
+                    id="inputCantidadSalida"
+                    min="1"
+                    required>
+
+                <label>Cliente (opcional)</label>
+
+                <input
+                    type="number"
+                    id="inputClienteSalida">
+
+                <label>Comentarios</label>
+
+                <input
+                    type="text"
+                    id="inputComentariosSalida"
+                    placeholder="Salida de mercancía">
+
+                <div class="botones-modal">
+
+                    <button
+                        type="submit"
+                        class="btn-agregar">
+
+                        Registrar salida
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-eliminar"
+                        onclick="cerrarModalSalida()">
+
+                        Cancelar
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- TABLA -->
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Lote</th>
+
+                <th>Producto</th>
+
+                <th>Stock Disponible</th>
+
+                <th>Caducidad</th>
+
+                <th>Estado</th>
+
+                <th>Acciones</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="tablaInventario">
+
+        </tbody>
+
+    </table>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function abrirModal(){
-        document.getElementById("modalProducto").style.display = "flex";
-    }
 
-    function cerrarModal(){
-        document.getElementById("modalProducto").style.display = "none";
-    }
+<script>
+
+function abrirModal(){
+    document.getElementById("modalProducto").style.display="flex";
+}
+
+function cerrarModal(){
+    document.getElementById("modalProducto").style.display="none";
+}
+
+function abrirModalSalida(){
+    document.getElementById("modalSalida").style.display="flex";
+}
+
+function cerrarModalSalida(){
+    document.getElementById("modalSalida").style.display="none";
+}
+
 </script>
+
 <script src="menu.js"></script>
 <script src="inventario.js"></script>
+
 </body>
 </html>

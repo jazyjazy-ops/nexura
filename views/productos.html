@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos - Nexura</title>
+    <link rel="stylesheet" href="../css/productos.css">
+    <link rel="stylesheet" href="../css/menu.css">
+</head>
+<body>
+    <button class="menu-btn" onclick="abrirMenu()">☰</button>
+
+<div class="sidebar" id="sidebar">
+    <div class="logo-panel">
+        <img src="../img/logo.png" alt="Logo Nexura">
+        <h2>Nexura</h2>
+    </div>
+
+    <ul class="menu">
+        <a href="../views/panel.html"><li>🏠 Panel general</li></a>
+        <a href="../views/inventario.html"><li>📦 Inventario</li></a>
+        <a href="../views/marcas.html"><li>🏷️ Marcas</li></a>
+        <a href="../views/productos.html"><li class="activo">🧪 Productos</li></a>
+        <a href="../views/movimientos.html"><li>📊 Reporte de movimientos</li></a>
+        <li><a href="#" id="btnCerrarSesion" style="color: #e74c3c;">🚪 Cerrar sesión</a></li>
+    </ul>
+</div>
+
+<div class="contenido">
+
+    <div class="encabezado">
+        <h1>Productos</h1>
+        <div class="usuario" id="infoUsuario">
+            👤 <span id="nombreUsuario">Cargando...</span> | <span id="rolUsuario"></span>
+        </div>
+    </div>
+
+    <div class="barra-acciones">
+        <input type="text" id="inputBusqueda" placeholder="Buscar por nombre, SKU, área o marca">
+        <button class="btn-filtrar">Filtrar</button>
+        <button class="btn-agregar" onclick="prepararNuevoProducto()">Agregar</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Producto</th>
+                <th>Presentación</th>
+                <th>Área</th>
+                <th>Marca</th>
+                <th>Equipo Compatible</th>
+                <th>Stock mínimo</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaProductos">
+        </tbody>
+    </table>
+
+    <div class="modal" id="modalProducto">
+        <div class="modal-contenido">
+            <h2>Agregar producto</h2>
+            <form id="formProducto">
+                <label>SKU:</label>
+                <input type="text" id="inputSku" required>
+
+                <label>Nombre:</label>
+                <input type="text" id="inputNombre" required>
+
+                <label>Presentación:</label>
+                <input type="text" id="inputPresentacion" placeholder="Ej. 25 pbas, 20 LT." required>
+
+                <label>Descripción:</label>
+                <input type="text" id="inputDescripcion">
+
+                <label>Área / Categoría:</label>
+                <select id="selectArea" required>
+                    <option value="">Cargando áreas...</option>
+                </select>
+
+                <label>Marca / Proveedor:</label>
+                <select id="selectMarca" required>
+                    <option value="">Cargando marcas...</option>
+                </select>
+
+                <label>Equipo Compatible:</label>
+                <select id="selectEquipo">
+                    <option value="">Ninguno (Uso general)</option>
+                </select>
+
+                <label>Precio:</label>
+                <input type="number" id="inputPrecio" step="0.01" required>
+
+                <label>Stock mínimo:</label>
+                <input type="number" id="inputStockMinimo" required>
+
+                <label>Estado:</label>
+                <select id="selectEstado" required>
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+
+                <div class="botones-modal">
+                    <button type="submit" class="btn-agregar">Guardar</button>
+                    <button type="button" class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function abrirModal(){
+        document.getElementById("modalProducto").style.display = "flex";
+    }
+    function cerrarModal(){
+        document.getElementById("modalProducto").style.display = "none";
+    }
+</script>
+<script src="../js/menu.js"></script>
+<script src="../js/productos.js"></script>
+</body>
+</html>

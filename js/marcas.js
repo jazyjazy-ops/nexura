@@ -52,7 +52,7 @@ function renderizarTabla(marcas) {
             <td>${marca.nombre}</td>
             <td>${marca.descripcion || "Sin descripción"}</td>
             <td>
-                <button class="btn-consultar">Consultar productos</button>
+                <button class="btn-consultar" onclick="consultarProductos('${encodeURIComponent(marca.nombre)}')">Consultar productos</button>
             </td>
             <td>
                 <button class="btn-editar" onclick="prepararEdicion(${marca.id})">Editar</button>
@@ -190,4 +190,8 @@ window.eliminarMarca = async function(id) {
     } catch (error) {
         Swal.fire("Error", "No se pudo conectar con el servidor", "error");
     }
+};
+
+window.consultarProductos = function(nombreMarca) {
+    window.location.href = `productos.html?marca=${nombreMarca}`;
 };

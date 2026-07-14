@@ -10,7 +10,9 @@ body{
     display:flex;
     background:#f4f6fb;
 }
-
+.roja{
+    background: #8a0000;
+}
 
 .sidebar{
     width:250px;

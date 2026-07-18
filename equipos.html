@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Equipos - Nexura</title>
+
+    <link rel="stylesheet" href="equipos.css">
+    <link rel="stylesheet" href="menu.css">
+</head>
+
+<body>
+
+<button class="menu-btn" onclick="abrirMenu()">☰</button>
+
+<div class="sidebar" id="sidebar">
+
+    <div class="logo-panel">
+        <img src="img/logo.png" alt="Logo Nexura">
+        <h2>Nexura</h2>
+    </div>
+
+    <ul class="menu">
+        <a href="panel.html">
+            <li>🏠 Panel general</li>
+        </a>
+
+        <a href="inventario.html">
+            <li>📦 Inventario</li>
+        </a>
+
+        <a href="marcas.html">
+            <li>🏷️ Marcas</li>
+        </a>
+
+        <a href="productos.html">
+            <li>🧪 Productos</li>
+        </a>
+
+        <a href="clientes.html">
+            <li>👥 Clientes</li>
+        </a>
+
+        <a href="equipos.html">
+            <li class="activo">🖥️ Equipos</li>
+        </a>
+
+        <a href="movimientos.html">
+            <li>📊 Reporte de movimientos</li>
+        </a>
+    </ul>
+
+</div>
+
+<div class="contenido" id="contenido">
+
+    <div class="encabezado">
+
+        <h1>Equipos</h1>
+
+        <div class="usuario">
+            👤 Administrador
+        </div>
+
+    </div>
+
+    <div class="barra-acciones">
+
+        <input
+            type="text"
+            id="inputBusqueda"
+            placeholder="Buscar equipo por nombre, serie, marca o cliente..."
+        >
+
+        <button
+            type="button"
+            class="btn-filtrar"
+            id="btnFiltrar"
+        >
+            Filtrar
+        </button>
+
+        <button
+            type="button"
+            class="btn-agregar"
+            onclick="prepararNuevoEquipo()"
+        >
+            Agregar equipo
+        </button>
+
+    </div>
+
+    <div class="tabla-contenedor">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Equipo</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Número de serie</th>
+                    <th>Cliente</th>
+                    <th>Fecha de instalación</th>
+                    <th>Último mantenimiento</th>
+                    <th>Próximo mantenimiento</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaEquipos">
+                <!-- equipos.js llenará esta tabla -->
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="modal" id="modalEquipo">
+
+        <div class="modal-contenido">
+
+            <h2 id="tituloModal">Agregar equipo</h2>
+
+            <form id="formEquipo">
+
+                <label for="inputNombre">Nombre del equipo:</label>
+                <input
+                    type="text"
+                    id="inputNombre"
+                    required
+                >
+
+                <label for="inputMarca">Marca:</label>
+                <input
+                    type="text"
+                    id="inputMarca"
+                    required
+                >
+
+                <label for="inputModelo">Modelo:</label>
+                <input
+                    type="text"
+                    id="inputModelo"
+                >
+
+                <label for="inputSerie">Número de serie:</label>
+                <input
+                    type="text"
+                    id="inputSerie"
+                    required
+                >
+
+                <label for="selectCliente">Cliente:</label>
+                <select id="selectCliente" required>
+                    <option value="">Seleccionar cliente</option>
+                </select>
+
+                <label for="inputFechaInstalacion">Fecha de instalación:</label>
+                <input
+                    type="date"
+                    id="inputFechaInstalacion"
+                >
+
+                <label for="inputUltimoMantenimiento">
+                    Último mantenimiento:
+                </label>
+                <input
+                    type="date"
+                    id="inputUltimoMantenimiento"
+                >
+
+                <label for="inputProximoMantenimiento">
+                    Próximo mantenimiento:
+                </label>
+                <input
+                    type="date"
+                    id="inputProximoMantenimiento"
+                >
+
+                <label for="selectEstado">Estado:</label>
+                <select id="selectEstado" required>
+                    <option value="Activo">Activo</option>
+                    <option value="En mantenimiento">En mantenimiento</option>
+                    <option value="Fuera de servicio">Fuera de servicio</option>
+                    <option value="Pendiente de instalación">
+                        Pendiente de instalación
+                    </option>
+                </select>
+
+                <div class="botones-modal">
+
+                    <button
+                        type="submit"
+                        class="btn-agregar"
+                    >
+                        Guardar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-eliminar"
+                        onclick="cerrarModalEquipo()"
+                    >
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function abrirModalEquipo() {
+        document.getElementById("modalEquipo").style.display = "flex";
+    }
+
+    function cerrarModalEquipo() {
+        document.getElementById("modalEquipo").style.display = "none";
+    }
+
+    function prepararNuevoEquipo() {
+        document.getElementById("formEquipo").reset();
+        document.getElementById("tituloModal").textContent = "Agregar equipo";
+        abrirModalEquipo();
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="menu.js"></script>
+<script src="equipos.js"></script>
+
+</body>
+
+</html>

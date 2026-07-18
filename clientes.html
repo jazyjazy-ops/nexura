@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Nexura</title>
+
+    <link rel="stylesheet" href="clientes.css">
+    <link rel="stylesheet" href="menu.css">
+</head>
+
+<body>
+
+<button class="menu-btn" onclick="abrirMenu()">☰</button>
+    <div class="sidebar" id="sidebar">
+
+        <div class="logo-panel">
+            <img src="img/logo.png" alt="Logo Nexura">
+            <h2>Nexura</h2>
+        </div>
+
+        <ul class="menu">
+            <a href="panel.html"><li class="activo">🏠 Panel general</li></a>
+            <a href="inventario.html"><li>📦 Inventario</li></a>
+            <a href="marcas.html"><li>🏷️ Marcas</li></a>
+            <a href="productos.html"><li>🧪 Productos</li></a>
+            <a href="clientes.html"><li class="activo">👥 Clientes</li></a>
+            <a href="movimientos.html"><li>📊 Reporte de movimientos</li></a>
+            <a href="#" id="btnCerrarSesion" style="color: #e74c3c;"><li>🚪 Cerrar sesión</li></a>
+        </ul>
+
+    </div>
+
+<!-- ESTE DIV ES EL QUE SE MUEVE CUANDO SE ABRE EL MENÚ -->
+<div class="contenido" id="contenido">
+
+    <div class="encabezado">
+        <h1>Clientes</h1>
+
+        <div class="usuario">
+            👤 Administrador
+        </div>
+    </div>
+
+    <div class="barra-acciones">
+
+        <input
+            type="text"
+            id="inputBusqueda"
+            placeholder="Buscar cliente..."
+        >
+
+        <button class="btn-filtrar">
+            Filtrar
+        </button>
+
+        <button
+            class="btn-agregar"
+            onclick="abrirModal()"
+        >
+            Agregar cliente
+        </button>
+
+    </div>
+
+    <div class="tabla-contenedor">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Última compra</th>
+                    <th>Fecha última compra</th>
+                    <th>Producto favorito</th>
+                    <th>Total compras</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaClientes">
+
+                <!-- clientes.js llenará esta tabla -->
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="modal" id="modalCliente">
+
+        <div class="modal-contenido">
+
+            <h2>Agregar cliente</h2>
+
+            <form id="formCliente">
+
+                <label>Nombre</label>
+                <input
+                    type="text"
+                    id="inputNombre"
+                    required
+                >
+
+                <label>Teléfono</label>
+                <input
+                    type="text"
+                    id="inputTelefono"
+                >
+
+                <label>Correo electrónico</label>
+                <input
+                    type="email"
+                    id="inputCorreo"
+                >
+
+                <div class="botones-modal">
+
+                    <button
+                        type="submit"
+                        class="btn-agregar"
+                    >
+                        Guardar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-eliminar"
+                        onclick="cerrarModal()"
+                    >
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function abrirModal(){
+    document.getElementById("modalCliente").style.display = "flex";
+}
+
+function cerrarModal(){
+    document.getElementById("modalCliente").style.display = "none";
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="menu.js"></script>
+<script src="clientes.js"></script>
+
+</body>
+</html>

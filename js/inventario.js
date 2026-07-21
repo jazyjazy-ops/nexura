@@ -1,6 +1,7 @@
 let lotesGenerales = [];
 let modoEdicion = false;
 let loteActualId = null;
+let rolUsuarioActual = null; // Variable global para guardar el rol
 
 const API_URL = "http://localhost:3000/api";
 
@@ -31,6 +32,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             localStorage.removeItem("nexura_usuario");
             window.location.href = "login.html";
         });
+    }
+
+    rolUsuarioActual = usuario.departamento || usuario.rol; 
+
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero'];
+    if (rolesSinPermiso.includes(rolUsuarioActual)) {
+        const btnAgregar = document.querySelector("#btnAgregarEntrada");
+        const btnSalida = document.querySelector('#btnRegistrarSalida');
+        if (btnAgregar && btnSalida){
+            btnAgregar.style.display = 'none';
+            btnSalida.style.display = 'none';
+        } 
+         
     }
 
     document
@@ -74,6 +88,7 @@ async function cargarInventario(token) {
         renderizarTabla(lotesGenerales);
 
     } catch (error) {
+        
         console.error("Error al cargar inventario:", error);
 
         Swal.fire({
@@ -99,12 +114,25 @@ function renderizarTabla(lotesAMostrar) {
         return;
     }
 
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero'];
+    const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
+
     const hoy = new Date();
     const hoyStr = hoy.toISOString().split("T")[0];
 
     lotesAMostrar.forEach((lote) => {
         let claseEstado = "normal";
         let estadoMostrar = lote.estado;
+
+        let botonesAccion = "";
+        if (tienePermisosEdicion) {
+            botonesAccion = `
+                <button class="btn-editar" onclick="prepararEdicion(${marca.id})">Editar</button>
+                <button class="btn-eliminar" onclick="eliminarMarca(${marca.id})">Eliminar</button>
+            `;
+        } else {
+            botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
+        }
 
         const fechaCaducidad = lote.fecha_caducidad
             ? lote.fecha_caducidad.split("T")[0]
@@ -137,13 +165,7 @@ function renderizarTabla(lotesAMostrar) {
                 </span>
             </td>
             <td>
-                <button class="btn-editar" onclick="prepararEdicion(${lote.id})">
-                    Editar
-                </button>
-
-                <button class="btn-eliminar" onclick="eliminarLote(${lote.id})">
-                    Eliminar
-                </button>
+                ${botonesAccion}
             </td>
         `;
 
@@ -275,10 +297,8 @@ document.getElementById("formAgregarLote").addEventListener("submit", async (e) 
 
     if (modoEdicion) {
         const loteAnterior = lotesGenerales.find((l) => l.id === loteActualId);
-
         url = `${API_URL}/lotes/${loteActualId}`;
         metodo = "PUT";
-
         payload = {
             producto_id,
             numero_lote,
@@ -287,10 +307,8 @@ document.getElementById("formAgregarLote").addEventListener("submit", async (e) 
             cantidad_disponible: cantidad,
             estado: cantidad > 0 ? "Activo" : "Agotado"
         };
-
     } else {
         const folio = document.getElementById("inputFolio").value;
-
         payload = {
             producto_id,
             numero_lote,
@@ -311,6 +329,16 @@ document.getElementById("formAgregarLote").addEventListener("submit", async (e) 
             body: JSON.stringify(payload)
         });
 
+        // NUEVA VALIDACIÓN: Interceptar el 403 antes de parsear JSON
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos para modificar el inventario."
+            });
+            return; // Detiene la ejecución aquí
+        }
+
         const data = await res.json();
 
         if (res.ok) {
@@ -321,12 +349,9 @@ document.getElementById("formAgregarLote").addEventListener("submit", async (e) 
                 timer: 1500,
                 showConfirmButton: false
             });
-
             cerrarModal();
             document.getElementById("formAgregarLote").reset();
-
             await cargarInventario(token);
-
         } else {
             Swal.fire({
                 icon: "error",
@@ -334,10 +359,8 @@ document.getElementById("formAgregarLote").addEventListener("submit", async (e) 
                 text: data.Mensaje || "No se pudo guardar el lote."
             });
         }
-
     } catch (error) {
         console.error("Error al guardar lote:", error);
-
         Swal.fire({
             icon: "error",
             title: "Error de conexión",
@@ -434,6 +457,16 @@ window.eliminarLote = async function (id) {
             }
         });
 
+        // NUEVA VALIDACIÓN: Interceptar el 403 de eliminación
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos para eliminar registros históricos."
+            });
+            return;
+        }
+
         const data = await res.json();
 
         if (res.ok) {
@@ -444,9 +477,7 @@ window.eliminarLote = async function (id) {
                 timer: 1500,
                 showConfirmButton: false
             });
-
             await cargarInventario(token);
-
         } else {
             Swal.fire({
                 icon: res.status === 409 ? "warning" : "error",
@@ -454,10 +485,8 @@ window.eliminarLote = async function (id) {
                 text: data.Mensaje || "No se pudo eliminar el lote."
             });
         }
-
     } catch (error) {
         console.error("Error al eliminar lote:", error);
-
         Swal.fire({
             icon: "error",
             title: "Error de conexión",

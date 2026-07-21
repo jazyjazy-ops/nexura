@@ -22,7 +22,9 @@
             <a href="../views/inventario.html"><li>📦 Inventario</li></a>
             <a href="../views/marcas.html"><li class="activo">🏷️ Marcas</li></a>
             <a href="../views/productos.html"><li>🧪 Productos</li></a>
+            <a href="../views/clientes.html"><li>👥 Clientes</li></a>
             <a href="../views/movimientos.html"><li>📊 Reporte de movimientos</li></a>
+            <a href="#" id="btnCerrarSesion" style="color: #e74c3c;"><li>🚪 Cerrar sesión</li></a>
         </ul>
 
     </div>
@@ -31,7 +33,12 @@
 
         <div class="encabezado">
             <h1>Marcas / Proveedores</h1>
-            <div class="usuario">👤 Administrador</div>
+            <div class="usuario">
+            👤
+            <span id="nombreUsuario">Cargando...</span>
+            |
+            <span id="rolUsuario"></span>
+        </div>
         </div>
 
         <div class="barra-acciones">

@@ -1,13 +1,31 @@
 let marcasGenerales = [];
 let modoEdicion = false;
 let marcaActualId = null;
+let rolUsuarioActual = null; // Variable global para guardar el rol
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("nexura_token");
+    const usuarioStr = localStorage.getItem("nexura_usuario");
 
-    if (!token) {
+    if (!token || !usuarioStr) {
         window.location.href = "login.html";
         return;
+    }
+
+    const usuario = JSON.parse(usuarioStr);
+    document.getElementById("nombreUsuario").textContent = usuario.nombre;
+
+    const rolDOM = document.getElementById("rolUsuario");
+    if (rolDOM) {
+        rolDOM.textContent = usuario.departamento || "Administración";
+    }
+
+    rolUsuarioActual = usuario.departamento || usuario.rol; 
+
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero'];
+    if (rolesSinPermiso.includes(rolUsuarioActual)) {
+        const btnAgregar = document.querySelector(".btn-agregar");
+        if (btnAgregar) btnAgregar.style.display = 'none';
     }
 
     await cargarMarcas(token);
@@ -20,6 +38,21 @@ async function cargarMarcas(token) {
                 "Authorization": `Bearer ${token}`
             }
         });
+
+        if (res.status === 401) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        // Validación de permisos para lectura
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos para visualizar el catálogo de marcas."
+            });
+            return;
+        }
 
         const marcas = await res.json();
         marcasGenerales = marcas;
@@ -44,8 +77,26 @@ function renderizarTabla(marcas) {
         return;
     }
 
+    // 1. Definimos los roles que NO tienen permiso de edición
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero'];
+    
+    // 2. Evaluamos si el rol actual global TIENE permiso
+    const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
+
     marcas.forEach(marca => {
         const tr = document.createElement("tr");
+
+        // 3. Construimos los botones de acción dinámicamente
+        let botonesAccion = "";
+        if (tienePermisosEdicion) {
+            botonesAccion = `
+                <button class="btn-editar" onclick="prepararEdicion(${marca.id})">Editar</button>
+                <button class="btn-eliminar" onclick="eliminarMarca(${marca.id})">Eliminar</button>
+            `;
+        } else {
+            // Opcional: Mostrar un texto discreto en lugar de los botones, o dejarlo en blanco ("")
+            botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
+        }
 
         tr.innerHTML = `
             <td>${marca.id}</td>
@@ -55,28 +106,13 @@ function renderizarTabla(marcas) {
                 <button class="btn-consultar" onclick="consultarProductos('${encodeURIComponent(marca.nombre)}')">Consultar productos</button>
             </td>
             <td>
-                <button class="btn-editar" onclick="prepararEdicion(${marca.id})">Editar</button>
-                <button class="btn-eliminar" onclick="eliminarMarca(${marca.id})">Eliminar</button>
+                ${botonesAccion}
             </td>
         `;
 
         tbody.appendChild(tr);
     });
-}
-
-document.getElementById("inputBusqueda").addEventListener("input", (e) => {
-    const texto = e.target.value.toLowerCase();
-
-    const marcasFiltradas = marcasGenerales.filter(marca => {
-        return (
-            marca.nombre.toLowerCase().includes(texto) ||
-            String(marca.id).includes(texto) ||
-            (marca.descripcion || "").toLowerCase().includes(texto)
-        );
-    });
-
-    renderizarTabla(marcasFiltradas);
-});
+};
 
 function prepararNuevaMarca() {
     modoEdicion = false;
@@ -135,6 +171,16 @@ document.getElementById("formMarca").addEventListener("submit", async (e) => {
             })
         });
 
+        // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos suficientes para guardar o modificar marcas."
+            });
+            return;
+        }
+
         const data = await res.json();
 
         if (res.ok) {
@@ -157,8 +203,6 @@ document.getElementById("formMarca").addEventListener("submit", async (e) => {
 });
 
 window.eliminarMarca = async function(id) {
-    const token = localStorage.getItem("nexura_token");
-
     const confirmacion = await Swal.fire({
         title: "¿Eliminar marca?",
         text: "Esta acción no se puede deshacer.",
@@ -170,6 +214,8 @@ window.eliminarMarca = async function(id) {
 
     if (!confirmacion.isConfirmed) return;
 
+    const token = localStorage.getItem("nexura_token");
+
     try {
         const res = await fetch(`http://localhost:3000/api/marcas/${id}`, {
             method: "DELETE",
@@ -177,6 +223,16 @@ window.eliminarMarca = async function(id) {
                 "Authorization": `Bearer ${token}`
             }
         });
+
+        // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "Solo el personal directivo o de sistemas puede eliminar marcas."
+            });
+            return;
+        }
 
         const data = await res.json();
 

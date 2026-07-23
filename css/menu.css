@@ -34,6 +34,7 @@ a{
     color: inherit;
 }
 
+
 /* SIDEBAR ABIERTO */
 .sidebar.mostrar{
     left:0;
@@ -48,4 +49,25 @@ a{
 /* CONTENIDO CUANDO SE ABRE EL MENÚ */
 .contenido.mover{
     margin-left:250px;
+}
+
+/* Agrupador de usuario y botón salir */
+.acciones-encabezado {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Espacio entre el cuadro de usuario y el botón */
+}
+
+/* Estilo para el botón de salir (para quitar el style en línea del HTML) */
+.btn-salir {
+    padding:10px 8px;
+    border-radius:10px;
+    background-color: #e74c3c;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-salir:hover {
+    background-color: #c0392b;
 }

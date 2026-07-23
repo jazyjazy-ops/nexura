@@ -1,6 +1,7 @@
 let productosGenerales = [];
 let modoEdicion = false;
 let productoActualId = null;
+let rolUsuarioActual = null; // Variable global para guardar el rol
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('nexura_token');
@@ -15,6 +16,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('nombreUsuario').textContent = usuario.nombre;
     const rolDOM = document.getElementById('rolUsuario');
     if (rolDOM) rolDOM.textContent = usuario.departamento || 'Administración';
+    
+    // Guardamos el rol para validaciones en el Frontend
+    rolUsuarioActual = usuario.departamento || usuario.rol;
+
+    // Ocultar botón de agregar si el rol no tiene permisos administrativos
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero', 'Gerencia de Ventas', 'Jefe de Ingenieria'];
+    if (rolesSinPermiso.includes(rolUsuarioActual)) {
+        const btnAgregar = document.querySelector(".btn-agregar");
+        if (btnAgregar) btnAgregar.style.display = 'none';
+    }
 
     document.getElementById('btnCerrarSesion').addEventListener('click', (e) => {
         e.preventDefault();
@@ -34,7 +45,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (marcaABuscar) {
         const marcaDecodificada = decodeURIComponent(marcaABuscar);
         inputBusqueda.value = marcaDecodificada;
-        
         filtrarProductos({ target: inputBusqueda });
     }
 });
@@ -45,10 +55,22 @@ async function cargarProductos(token) {
         const res = await fetch("http://localhost:3000/api/productos", {
             headers: { "Authorization": `Bearer ${token}` }
         });
+        
         if (res.status === 401) {
             window.location.href = "login.html";
             return;
         }
+
+        // VALIDACIÓN: Interceptar el 403
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos para visualizar el catálogo de productos."
+            });
+            return;
+        }
+
         productosGenerales = await res.json();
         renderizarTabla(productosGenerales);
     } catch (error) {
@@ -65,8 +87,24 @@ function renderizarTabla(productos) {
         return;
     }
 
+    // Evaluamos los permisos para dibujar los botones en cada fila
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero', 'Gerencia de Ventas', 'Jefe de Ingenieria'];
+    const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
+
     productos.forEach(p => {
         const tr = document.createElement('tr');
+        
+        // Construcción dinámica de acciones
+        let botonesAccion = "";
+        if (tienePermisosEdicion) {
+            botonesAccion = `
+                <button class="btn-editar" onclick="prepararEdicion(${p.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
+                <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">Eliminar</button>
+            `;
+        } else {
+            botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
+        }
+
         tr.innerHTML = `
             <td>${p.sku}</td>
             <td>${p.nombre}</td>
@@ -78,8 +116,7 @@ function renderizarTabla(productos) {
             <td>$${Number(p.precio).toFixed(2)}</td>
             <td><span class="estado ${p.estado ? 'normal' : 'roja'}">${p.estado ? 'Activo' : 'Inactivo'}</span></td>
             <td>
-                <button class="btn-editar" onclick="prepararEdicion(${p.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
-                <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">Eliminar</button>
+                ${botonesAccion}
             </td>
         `;
         tbody.appendChild(tr);
@@ -100,17 +137,14 @@ async function cargarSelects(token) {
         const marcas = await resMarcas.json();
         const equipos = await resEquipos.json();
 
-        // Llenar select de Áreas
         const selectArea = document.getElementById('selectArea');
         selectArea.innerHTML = '<option value="">-- Selecciona Área --</option>';
         areas.forEach(a => selectArea.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
 
-        // Llenar select de Marcas
         const selectMarca = document.getElementById('selectMarca');
         selectMarca.innerHTML = '<option value="">-- Selecciona Marca --</option>';
         marcas.forEach(m => selectMarca.innerHTML += `<option value="${m.id}">${m.nombre}</option>`);
 
-        // Llenar select de Equipos
         const selectEquipo = document.getElementById('selectEquipo');
         selectEquipo.innerHTML = '<option value="">Ninguno (Uso general)</option>';
         equipos.forEach(e => selectEquipo.innerHTML += `<option value="${e.id}">${e.nombre} (${e.area_nombre})</option>`);
@@ -150,7 +184,6 @@ window.prepararEdicion = function(id) {
     document.getElementById('inputPrecio').value = prod.precio;
     document.getElementById('inputStockMinimo').value = prod.stock_minimo;
     
-    // Asignamos el estado actual del producto al abrir el modal
     document.getElementById('selectEstado').value = prod.estado ? "1" : "0";
 
     abrirModal();
@@ -192,6 +225,16 @@ document.getElementById('formProducto').addEventListener('submit', async (e) => 
             body: JSON.stringify(payload)
         });
 
+        // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos suficientes para crear o modificar productos."
+            });
+            return;
+        }
+
         const data = await res.json();
 
         if (res.ok) {
@@ -211,7 +254,7 @@ document.getElementById('formProducto').addEventListener('submit', async (e) => 
     }
 });
 
-// --- 5. ELIMINAR (DELETE) ---
+// --- 5. ELIMINAR (DELETE / DESACTIVAR) ---
 window.eliminarProducto = async function(id) {
     const confirmacion = await Swal.fire({
         title: '¿Desactivar producto?',
@@ -228,7 +271,6 @@ window.eliminarProducto = async function(id) {
         const token = localStorage.getItem('nexura_token');
         const prod = productosGenerales.find(p => p.id === id);
         
-        // Armamos el mismo producto, pero forzamos el estado a 0 (Inactivo)
         const payload = {
             sku: prod.sku,
             nombre: prod.nombre,
@@ -252,6 +294,16 @@ window.eliminarProducto = async function(id) {
                 body: JSON.stringify(payload)
             });
             
+            // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
+            if (res.status === 403) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Acceso Denegado",
+                    text: "No tienes permisos suficientes para desactivar productos."
+                });
+                return;
+            }
+
             const data = await res.json();
             
             if (res.ok) {

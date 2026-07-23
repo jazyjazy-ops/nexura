@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (btnAgregar) btnAgregar.style.display = 'none';
     }
 
+    document.getElementById("inputBusqueda").addEventListener("input", filtrarMarcas);
+
     await cargarMarcas(token);
 });
 
@@ -113,6 +115,22 @@ function renderizarTabla(marcas) {
         tbody.appendChild(tr);
     });
 };
+
+function filtrarMarcas() {
+    const textoBuscado = document
+        .getElementById("inputBusqueda")
+        .value
+        .toLowerCase();
+
+    const marcasFiltradas = marcasGenerales.filter((marca) => {
+        return (
+            marca.nombre.toLowerCase().includes(textoBuscado) ||
+            String(marca.id).includes(textoBuscado)
+        );
+    });
+
+    renderizarTabla(marcasFiltradas);
+}
 
 function prepararNuevaMarca() {
     modoEdicion = false;

@@ -19,10 +19,10 @@
             <a href="../views/panel.html"><li>🏠 Panel general</li></a>
             <a href="../views/inventario.html"><li>📦 Inventario</li></a>
             <a href="../views/marcas.html"><li>🏷️ Marcas</li></a>
+            <a href="../views/equipos.html"><li>🖥️ Equipos</li></a>
             <a href="../views/productos.html"><li class="activo">🧪 Productos</li></a>
             <a href="../views/clientes.html"><li>👥 Clientes</li></a>
             <a href="../views/movimientos.html"><li>📊 Reporte de movimientos</li></a>
-            <a href="#" id="btnCerrarSesion" style="color: #e74c3c;"><li>🚪 Cerrar sesión</li></a>
         </ul>
 </div>
 
@@ -30,14 +30,17 @@
 
     <div class="encabezado">
         <h1>Productos</h1>
-        <div class="usuario" id="infoUsuario">
-            👤 <span id="nombreUsuario">Cargando...</span> | <span id="rolUsuario"></span>
+        
+        <div class="acciones-encabezado">
+            <div class="usuario" id="infoUsuario">
+                👤 <span id="nombreUsuario">Cargando...</span> | <span id="rolUsuario"></span>
+            </div>
+            <a href="#" id="btnCerrarSesion" class="btn-salir">🚪 Cerrar sesión</a>
         </div>
     </div>
 
     <div class="barra-acciones">
         <input type="text" id="inputBusqueda" placeholder="Buscar por nombre, SKU, área o marca">
-        <button class="btn-filtrar">Filtrar</button>
         <button class="btn-agregar" onclick="prepararNuevoProducto()">Agregar</button>
     </div>
 

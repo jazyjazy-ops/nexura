@@ -1,4 +1,5 @@
 let movimientosGenerales = [];
+let rolUsuarioActual = null; // Variable global para guardar el rol
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('nexura_token');
@@ -13,6 +14,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('nombreUsuario').textContent = usuario.nombre;
     const rolDOM = document.getElementById('rolUsuario');
     if (rolDOM) rolDOM.textContent = usuario.departamento || 'Administración';
+    
+    // Guardamos el rol globalmente
+    rolUsuarioActual = usuario.departamento || usuario.rol;
+
+    // Ocultamos el botón de salida para los roles comerciales o ajenos al almacén
+    const rolesPermitidosSalida = ['Direccion', 'Sub-Direccion', 'Gerencia de Operaciones', 'Jefe de Almacen'];
+    if (!rolesPermitidosSalida.includes(rolUsuarioActual)) {
+        const btnAgregar = document.querySelector(".btn-agregar");
+        if (btnAgregar) btnAgregar.style.display = 'none';
+    }
 
     document.getElementById('btnCerrarSesion').addEventListener('click', (e) => {
         e.preventDefault();
@@ -31,13 +42,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- 1. CARGAR HISTORIAL (KARDEX) ---
 async function cargarMovimientos(token) {
     try {
-        // Asegúrate de que esta URL coincida con la ruta que apunta a tu reporteController.js
         const res = await fetch("http://localhost:3000/api/movimientos", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         
         if (res.status === 401) {
             window.location.href = "login.html";
+            return;
+        }
+
+        // VALIDACIÓN: Interceptar el 403
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "No tienes permisos para visualizar el historial de movimientos."
+            });
             return;
         }
 
@@ -68,7 +88,7 @@ function renderizarTabla(movimientos) {
 
         // Colores según el tipo de movimiento
         const esEntrada = mov.tipo_movimiento.toLowerCase() === 'entrada';
-        const claseEstado = esEntrada ? 'normal' : 'roja'; // normal = verde, roja = rojo (usando tu CSS)
+        const claseEstado = esEntrada ? 'normal' : 'roja';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -81,7 +101,6 @@ function renderizarTabla(movimientos) {
             <td>${mov.usuario}</td>
             <td>${fechaFormateada}</td>
         `;
-        // Nota: Quitamos los botones de Editar/Eliminar. Por auditoría, un movimiento de inventario NUNCA se borra ni se edita, solo se compensa.
         tbody.appendChild(tr);
     });
 }
@@ -92,19 +111,24 @@ async function cargarSelects(token) {
     try {
         const [resProductos, resClientes] = await Promise.all([
             fetch("http://localhost:3000/api/productos", { headers }),
-            fetch("http://localhost:3000/api/clientes", { headers }) // Asumiendo que creaste esta ruta
+            fetch("http://localhost:3000/api/clientes", { headers })
         ]);
+
+        // Evitar que el JSON se rompa si el backend denegó alguna de las dos listas
+        if (resProductos.status === 403 || resClientes.status === 403) {
+            console.warn("Acceso denegado a catálogos para poblar los selectores.");
+            return;
+        }
 
         const productos = await resProductos.json();
         const clientes = await resClientes.json();
 
-        // Poblar Productos usando .appendChild para evitar bugs de renderizado
+        // Poblar Productos usando .appendChild
         const selectProducto = document.getElementById('selectProducto');
         selectProducto.innerHTML = '';
         selectProducto.appendChild(new Option('-- Selecciona el producto a despachar --', ''));
         
         productos.forEach(p => {
-            // Solo mostramos productos activos
             if(p.estado) { 
                 selectProducto.appendChild(new Option(`[${p.sku}] ${p.nombre}`, p.id.toString()));
             }
@@ -137,7 +161,6 @@ document.getElementById('formSalida').addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('nexura_token');
 
-    // Construimos el payload exactamente como lo espera loteController.registrarSalida
     const payload = {
         folio: document.getElementById('inputFolio').value,
         producto_id: parseInt(document.getElementById('selectProducto').value),
@@ -156,6 +179,16 @@ document.getElementById('formSalida').addEventListener('submit', async (e) => {
             body: JSON.stringify(payload)
         });
 
+        // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
+        if (res.status === 403) {
+            Swal.fire({
+                icon: "warning",
+                title: "Acceso Denegado",
+                text: "Tu perfil de usuario no está autorizado para despachar inventario."
+            });
+            return;
+        }
+
         const data = await res.json();
 
         if (res.ok) {
@@ -167,7 +200,7 @@ document.getElementById('formSalida').addEventListener('submit', async (e) => {
                 showConfirmButton: false
             });
             cerrarModal();
-            await cargarMovimientos(token); // Recargar la tabla
+            await cargarMovimientos(token);
         } else {
             Swal.fire({ icon: 'error', title: 'Operación denegada', text: data.Mensaje || 'Error al procesar la salida' });
         }

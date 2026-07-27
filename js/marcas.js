@@ -3,6 +3,11 @@ let modoEdicion = false;
 let marcaActualId = null;
 let rolUsuarioActual = null; // Variable global para guardar el rol
 
+// --- VARIABLES DE PAGINACIÓN ---
+let paginaActual = 1;
+const registrosPorPagina = 10;
+let datosFiltradosActuales = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("nexura_token");
     const usuarioStr = localStorage.getItem("nexura_usuario");
@@ -58,26 +63,37 @@ async function cargarMarcas(token) {
 
         const marcas = await res.json();
         marcasGenerales = marcas;
+        
+        // Inicializamos los datos filtrados con todas las marcas
+        datosFiltradosActuales = [...marcasGenerales];
 
-        renderizarTabla(marcasGenerales);
+        // Llamamos a la nueva función paginada
+        renderizarTablaPaginada();
 
     } catch (error) {
         console.error("Error al cargar marcas:", error);
     }
 }
 
-function renderizarTabla(marcas) {
+// --- NUEVA FUNCIÓN: RENDERIZAR TABLA PAGINADA ---
+function renderizarTablaPaginada() {
     const tbody = document.getElementById("tablaMarcas");
     tbody.innerHTML = "";
 
-    if (marcas.length === 0) {
+    if (!datosFiltradosActuales || datosFiltradosActuales.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5">No se encontraron marcas</td>
+                <td colspan="5" style="text-align:center;">No se encontraron marcas</td>
             </tr>
         `;
+        renderizarControlesPaginacion(0);
         return;
     }
+
+    // Calcular índices de inicio y fin para cortar el arreglo
+    const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+    const indiceFin = indiceInicio + registrosPorPagina;
+    const marcasPagina = datosFiltradosActuales.slice(indiceInicio, indiceFin);
 
     // 1. Definimos los roles que NO tienen permiso de edición
     const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero'];
@@ -85,7 +101,8 @@ function renderizarTabla(marcas) {
     // 2. Evaluamos si el rol actual global TIENE permiso
     const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
 
-    marcas.forEach(marca => {
+    // Iteramos SOLO sobre las marcas de la página actual
+    marcasPagina.forEach(marca => {
         const tr = document.createElement("tr");
 
         // 3. Construimos los botones de acción dinámicamente
@@ -96,7 +113,6 @@ function renderizarTabla(marcas) {
                 <button class="btn-eliminar" onclick="eliminarMarca(${marca.id})">Eliminar</button>
             `;
         } else {
-            // Opcional: Mostrar un texto discreto en lugar de los botones, o dejarlo en blanco ("")
             botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
         }
 
@@ -114,22 +130,64 @@ function renderizarTabla(marcas) {
 
         tbody.appendChild(tr);
     });
-};
 
+    // Dibujamos los botones de paginación
+    renderizarControlesPaginacion(datosFiltradosActuales.length);
+}
+
+// --- NUEVA FUNCIÓN: CONTROLES DE PAGINACIÓN ---
+function renderizarControlesPaginacion(totalRegistros) {
+    const contenedor = document.getElementById('controlesPaginacion');
+    if (!contenedor) return;
+
+    contenedor.innerHTML = '';
+
+    if (totalRegistros <= registrosPorPagina) return; 
+
+    const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.textContent = 'Anterior';
+    btnAnterior.disabled = paginaActual === 1;
+    btnAnterior.onclick = () => {
+        paginaActual--;
+        renderizarTablaPaginada();
+    };
+
+    const textoPagina = document.createElement('span');
+    textoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+    const btnSiguiente = document.createElement('button');
+    btnSiguiente.textContent = 'Siguiente';
+    btnSiguiente.disabled = paginaActual === totalPaginas;
+    btnSiguiente.onclick = () => {
+        paginaActual++;
+        renderizarTablaPaginada();
+    };
+
+    contenedor.appendChild(btnAnterior);
+    contenedor.appendChild(textoPagina);
+    contenedor.appendChild(btnSiguiente);
+}
+
+// --- MODIFICACIÓN: FILTRADO EN TIEMPO REAL ---
 function filtrarMarcas() {
     const textoBuscado = document
         .getElementById("inputBusqueda")
         .value
         .toLowerCase();
 
-    const marcasFiltradas = marcasGenerales.filter((marca) => {
+    // Actualizamos el arreglo de datos filtrados
+    datosFiltradosActuales = marcasGenerales.filter((marca) => {
         return (
             marca.nombre.toLowerCase().includes(textoBuscado) ||
             String(marca.id).includes(textoBuscado)
         );
     });
 
-    renderizarTabla(marcasFiltradas);
+    // Reiniciamos a la página 1 cada vez que se busca algo
+    paginaActual = 1;
+    renderizarTablaPaginada();
 }
 
 function prepararNuevaMarca() {

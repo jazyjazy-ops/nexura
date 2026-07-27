@@ -9,6 +9,8 @@
 
     <link rel="stylesheet" href="../css/equipos.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <link rel="stylesheet" href="../css/productos.css">
+
 </head>
 
 <body>
@@ -83,8 +85,13 @@
                 <tr>
                     <th>ID</th>
                     <th>Equipo</th>
-                    <th>Marca</th>
+                    <th>Número de serie</th>
                     <th>Modelo</th>
+                    <th>Área</th>
+                    <th>Marca</th>
+                    <th>Cliente</th>
+                    <th>Instalación</th>
+                    <th>Último Mantenimiento</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -98,6 +105,8 @@
 
     </div>
 
+    <div id="controlesPaginacion" class="paginacion"></div>
+
     <div class="modal" id="modalEquipo">
 
         <div class="modal-contenido">
@@ -105,90 +114,46 @@
             <h2 id="tituloModal">Agregar equipo</h2>
 
             <form id="formEquipo">
-
                 <label for="inputNombre">Nombre del equipo:</label>
-                <input
-                    type="text"
-                    id="inputNombre"
-                    required
-                >
-
-                <label for="inputMarca">Marca:</label>
-                <input
-                    type="text"
-                    id="inputMarca"
-                    required
-                >
-
-                <label for="inputModelo">Modelo:</label>
-                <input
-                    type="text"
-                    id="inputModelo"
-                >
+                <input type="text" id="inputNombre" required>
 
                 <label for="inputSerie">Número de serie:</label>
-                <input
-                    type="text"
-                    id="inputSerie"
-                    required
-                >
+                <input type="text" id="inputSerie" required>
 
-                <label for="selectCliente">Cliente:</label>
-                <select id="selectCliente" required>
-                    <option value="">Seleccionar cliente</option>
+                <label for="inputModelo">Modelo:</label>
+                <input type="text" id="inputModelo">
+
+                <label for="selectArea">Área designada:</label>
+                <select id="selectArea" required>
+                    <option value="">Seleccionar área</option>
+                </select>
+
+                <label for="selectCliente">Cliente asignado:</label>
+                <select id="selectCliente">
+                    <option value="">Seleccionar cliente (Opcional)</option>
+                </select>
+
+                <label for="selectMarca">Marca:</label>
+                <select id="selectMarca">
+                    <option value="">Seleccionar marca (Opcional)</option>
                 </select>
 
                 <label for="inputFechaInstalacion">Fecha de instalación:</label>
-                <input
-                    type="date"
-                    id="inputFechaInstalacion"
-                >
+                <input type="date" id="inputFechaInstalacion">
 
-                <label for="inputUltimoMantenimiento">
-                    Último mantenimiento:
-                </label>
-                <input
-                    type="date"
-                    id="inputUltimoMantenimiento"
-                >
-
-                <label for="inputProximoMantenimiento">
-                    Próximo mantenimiento:
-                </label>
-                <input
-                    type="date"
-                    id="inputProximoMantenimiento"
-                >
+                <label for="inputFechaMantenimiento">Fecha de mantenimiento:</label>
+                <input type="date" id="inputFechaMantenimiento">
 
                 <label for="selectEstado">Estado:</label>
                 <select id="selectEstado" required>
                     <option value="Activo">Activo</option>
-                    <option value="En mantenimiento">En mantenimiento</option>
-                    <option value="Fuera de servicio">Fuera de servicio</option>
-                    <option value="Pendiente de instalación">
-                        Pendiente de instalación
-                    </option>
+                    <option value="Inactivo">Inactivo</option>
                 </select>
 
                 <div class="botones-modal">
-
-                    <button
-                        type="submit"
-                        class="btn-agregar"
-                    >
-                        Guardar
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn-eliminar"
-                        onclick="cerrarModalEquipo()"
-                    >
-                        Cancelar
-                    </button>
-
+                    <button type="submit" class="btn-agregar">Guardar</button>
+                    <button type="button" class="btn-eliminar" onclick="cerrarModalEquipo()">Cancelar</button>
                 </div>
-
             </form>
 
         </div>

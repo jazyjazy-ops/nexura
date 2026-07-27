@@ -1,6 +1,11 @@
 let movimientosGenerales = [];
 let rolUsuarioActual = null; // Variable global para guardar el rol
 
+// --- VARIABLES DE PAGINACIÓN ---
+let paginaActual = 1;
+const registrosPorPagina = 10;
+let datosFiltradosActuales = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('nexura_token');
     const usuarioStr = localStorage.getItem('nexura_usuario');
@@ -63,22 +68,35 @@ async function cargarMovimientos(token) {
 
         const movimientos = await res.json();
         movimientosGenerales = movimientos;
-        renderizarTabla(movimientosGenerales);
+        
+        // Inicializamos los datos filtrados
+        datosFiltradosActuales = [...movimientosGenerales];
+        
+        // Llamamos a la tabla paginada
+        renderizarTablaPaginada();
     } catch (error) {
         console.error("Error al cargar movimientos:", error);
     }
 }
 
-function renderizarTabla(movimientos) {
+// --- 2. RENDERIZAR TABLA PAGINADA ---
+function renderizarTablaPaginada() {
     const tbody = document.getElementById('tablaMovimientos');
     tbody.innerHTML = '';
 
-    if (movimientos.length === 0) {
+    if (!datosFiltradosActuales || datosFiltradosActuales.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay movimientos registrados</td></tr>';
+        renderizarControlesPaginacion(0);
         return;
     }
 
-    movimientos.forEach(mov => {
+    // Calcular índices de inicio y fin para cortar el arreglo
+    const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+    const indiceFin = indiceInicio + registrosPorPagina;
+    const movimientosPagina = datosFiltradosActuales.slice(indiceInicio, indiceFin);
+
+    // Iteramos SOLO sobre los movimientos de la página actual
+    movimientosPagina.forEach(mov => {
         // Formatear la fecha para que sea legible
         const fechaObj = new Date(mov.fecha_hora);
         const fechaFormateada = fechaObj.toLocaleString('es-MX', { 
@@ -103,9 +121,67 @@ function renderizarTabla(movimientos) {
         `;
         tbody.appendChild(tr);
     });
+
+    // Dibujamos los controles de paginación
+    renderizarControlesPaginacion(datosFiltradosActuales.length);
 }
 
-// --- 2. LLENAR SELECTS DEL MODAL (PRODUCTOS Y CLIENTES) ---
+// --- NUEVA FUNCIÓN: CONTROLES DE PAGINACIÓN ---
+function renderizarControlesPaginacion(totalRegistros) {
+    const contenedor = document.getElementById('controlesPaginacion');
+    if (!contenedor) return;
+
+    contenedor.innerHTML = '';
+
+    if (totalRegistros <= registrosPorPagina) return; 
+
+    const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.textContent = 'Anterior';
+    btnAnterior.disabled = paginaActual === 1;
+    btnAnterior.onclick = () => {
+        paginaActual--;
+        renderizarTablaPaginada();
+    };
+
+    const textoPagina = document.createElement('span');
+    textoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+    const btnSiguiente = document.createElement('button');
+    btnSiguiente.textContent = 'Siguiente';
+    btnSiguiente.disabled = paginaActual === totalPaginas;
+    btnSiguiente.onclick = () => {
+        paginaActual++;
+        renderizarTablaPaginada();
+    };
+
+    contenedor.appendChild(btnAnterior);
+    contenedor.appendChild(textoPagina);
+    contenedor.appendChild(btnSiguiente);
+}
+
+// --- MODIFICACIÓN: FILTRADO EN TIEMPO REAL ---
+function filtrarMovimientos(e) {
+    const termino = e.target.value.toLowerCase();
+    
+    // Actualizamos los datos filtrados
+    datosFiltradosActuales = movimientosGenerales.filter(mov => {
+        return (
+            (mov.folio && mov.folio.toLowerCase().includes(termino)) ||
+            (mov.producto && mov.producto.toLowerCase().includes(termino)) ||
+            (mov.sku && mov.sku.toLowerCase().includes(termino)) ||
+            (mov.usuario && mov.usuario.toLowerCase().includes(termino)) ||
+            (mov.cliente && mov.cliente.toLowerCase().includes(termino))
+        );
+    });
+    
+    // Reiniciamos a la página 1 al filtrar
+    paginaActual = 1;
+    renderizarTablaPaginada();
+}
+
+// --- 3. LLENAR SELECTS DEL MODAL (PRODUCTOS Y CLIENTES) ---
 async function cargarSelects(token) {
     const headers = { "Authorization": `Bearer ${token}` };
     try {
@@ -150,13 +226,13 @@ async function cargarSelects(token) {
     }
 }
 
-// --- 3. CONFIGURAR MODAL ---
+// --- 4. CONFIGURAR MODAL ---
 window.prepararNuevaSalida = function() {
     document.getElementById('formSalida').reset();
     abrirModal();
 }
 
-// --- 4. ENVIAR SALIDA (PEPS) AL BACKEND ---
+// --- 5. ENVIAR SALIDA (PEPS) AL BACKEND ---
 document.getElementById('formSalida').addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('nexura_token');
@@ -208,18 +284,3 @@ document.getElementById('formSalida').addEventListener('submit', async (e) => {
         Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo conectar con el servidor.' });
     }
 });
-
-// --- 5. FILTRADO EN TIEMPO REAL ---
-function filtrarMovimientos(e) {
-    const termino = e.target.value.toLowerCase();
-    const filtrados = movimientosGenerales.filter(mov => {
-        return (
-            (mov.folio && mov.folio.toLowerCase().includes(termino)) ||
-            (mov.producto && mov.producto.toLowerCase().includes(termino)) ||
-            (mov.sku && mov.sku.toLowerCase().includes(termino)) ||
-            (mov.usuario && mov.usuario.toLowerCase().includes(termino)) ||
-            (mov.cliente && mov.cliente.toLowerCase().includes(termino))
-        );
-    });
-    renderizarTabla(filtrados);
-}

@@ -168,12 +168,11 @@
                     min="1"
                     required>
 
-                <label>Cliente (opcional)</label>
-
-                <input
-                    type="number"
-                    id="inputClienteSalida">
-
+                <label for="selectClienteSalida">Cliente (Opcional):</label>
+                <select id="selectClienteSalida">
+                    <option value="">Cargando clientes...</option>
+                </select>
+                
                 <label>Comentarios</label>
 
                 <input
@@ -208,8 +207,6 @@
 
     </div>
 
-    <!-- TABLA -->
-
     <table>
 
         <thead>
@@ -237,6 +234,8 @@
         </tbody>
 
     </table>
+
+    <div id="controlesPaginacion" class="paginacion"></div>
 
 </div>
 

@@ -2,6 +2,9 @@ let productosGenerales = [];
 let modoEdicion = false;
 let productoActualId = null;
 let rolUsuarioActual = null; // Variable global para guardar el rol
+let paginaActual = 1;
+const registrosPorPagina = 10; // Puedes cambiar esto a 5 o 15
+let datosFiltradosActuales = []; // Guardará los datos que se están mostrando actualmente
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('nexura_token');
@@ -72,74 +75,38 @@ async function cargarProductos(token) {
         }
 
         productosGenerales = await res.json();
-        renderizarTabla(productosGenerales);
+        datosFiltradosActuales = [...productosGenerales]; 
+        renderizarTablaPaginada();
     } catch (error) {
         console.error("Error al cargar productos:", error);
     }
-}
-
-function renderizarTabla(productos) {
-    const tbody = document.getElementById('tablaProductos');
-    tbody.innerHTML = '';
-
-    if (productos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No se encontraron productos</td></tr>';
-        return;
-    }
-
-    // Evaluamos los permisos para dibujar los botones en cada fila
-    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero', 'Gerencia de Ventas', 'Jefe de Ingenieria'];
-    const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
-
-    productos.forEach(p => {
-        const tr = document.createElement('tr');
-        
-        // Construcción dinámica de acciones
-        let botonesAccion = "";
-        if (tienePermisosEdicion) {
-            botonesAccion = `
-                <button class="btn-editar" onclick="prepararEdicion(${p.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
-                <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">Eliminar</button>
-            `;
-        } else {
-            botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
-        }
-
-        tr.innerHTML = `
-            <td>${p.sku}</td>
-            <td>${p.nombre}</td>
-            <td>${p.presentacion || 'N/A'}</td>
-            <td>${p.area_nombre || 'Sin área'}</td>
-            <td>${p.marca_nombre || 'Sin marca'}</td>
-            <td>${p.equipo_nombre || 'General'}</td>
-            <td>${p.stock_minimo}</td>
-            <td>$${Number(p.precio).toFixed(2)}</td>
-            <td><span class="estado ${p.estado ? 'normal' : 'roja'}">${p.estado ? 'Activo' : 'Inactivo'}</span></td>
-            <td>
-                ${botonesAccion}
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
 }
 
 // --- 2. LLENAR SELECTS DEL MODAL ---
 async function cargarSelects(token) {
     const headers = { "Authorization": `Bearer ${token}` };
     try {
-        const [resAreas, resMarcas, resEquipos] = await Promise.all([
+        // Añadimos el fetch a /api/categorias
+        const [resAreas, resCategorias, resMarcas, resEquipos] = await Promise.all([
             fetch("http://localhost:3000/api/areas", { headers }),
+            fetch("http://localhost:3000/api/categorias", { headers }), // NUEVO
             fetch("http://localhost:3000/api/marcas", { headers }),
             fetch("http://localhost:3000/api/equipos", { headers })
         ]);
 
         const areas = await resAreas.json();
+        const categorias = await resCategorias.json(); // NUEVO
         const marcas = await resMarcas.json();
         const equipos = await resEquipos.json();
 
         const selectArea = document.getElementById('selectArea');
         selectArea.innerHTML = '<option value="">-- Selecciona Área --</option>';
         areas.forEach(a => selectArea.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
+
+        // NUEVO SELECT DE CATEGORÍAS
+        const selectCategoria = document.getElementById('selectCategoria');
+        selectCategoria.innerHTML = '<option value="">-- Selecciona Categoría (Opcional) --</option>';
+        categorias.forEach(c => selectCategoria.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
 
         const selectMarca = document.getElementById('selectMarca');
         selectMarca.innerHTML = '<option value="">-- Selecciona Marca --</option>';
@@ -179,6 +146,7 @@ window.prepararEdicion = function(id) {
     document.getElementById('inputPresentacion').value = prod.presentacion || '';
     document.getElementById('inputDescripcion').value = prod.descripcion || '';
     document.getElementById('selectArea').value = prod.area_id || '';
+    document.getElementById('selectCategoria').value = prod.categoria_id || '';
     document.getElementById('selectMarca').value = prod.marca_id || '';
     document.getElementById('selectEquipo').value = prod.equipo_id || '';
     document.getElementById('inputPrecio').value = prod.precio;
@@ -200,7 +168,8 @@ document.getElementById('formProducto').addEventListener('submit', async (e) => 
         presentacion: document.getElementById('inputPresentacion').value,
         descripcion: document.getElementById('inputDescripcion').value,
         area_id: parseInt(document.getElementById('selectArea').value),
-        marca_id: parseInt(document.getElementById('selectMarca').value),
+        categoria_id: document.getElementById('selectCategoria').value ? parseInt(document.getElementById('selectCategoria').value) : null, // NUEVO
+        marca_id: document.getElementById('selectMarca').value ? parseInt(document.getElementById('selectMarca').value) : null,
         equipo_id: document.getElementById('selectEquipo').value ? parseInt(document.getElementById('selectEquipo').value) : null,
         precio: parseFloat(document.getElementById('inputPrecio').value),
         stock_minimo: parseInt(document.getElementById('inputStockMinimo').value),
@@ -277,6 +246,7 @@ window.eliminarProducto = async function(id) {
             presentacion: prod.presentacion,
             descripcion: prod.descripcion,
             area_id: prod.area_id,
+            categoria_id: prod.categoria_id, // NUEVO
             marca_id: prod.marca_id,
             equipo_id: prod.equipo_id,
             precio: prod.precio,
@@ -321,13 +291,104 @@ window.eliminarProducto = async function(id) {
 // --- 6. FILTRADO EN TIEMPO REAL ---
 function filtrarProductos(e) {
     const termino = e.target.value.toLowerCase();
-    const filtrados = productosGenerales.filter(p => {
+    
+    // Actualizamos el arreglo de datos filtrados
+    datosFiltradosActuales = productosGenerales.filter(p => {
         return (
             p.nombre.toLowerCase().includes(termino) ||
             p.sku.toLowerCase().includes(termino) ||
             (p.area_nombre && p.area_nombre.toLowerCase().includes(termino)) ||
+            (p.categoria_nombre && p.categoria_nombre.toLowerCase().includes(termino)) ||
             (p.marca_nombre && p.marca_nombre.toLowerCase().includes(termino))
         );
     });
-    renderizarTabla(filtrados);
+    
+    // Reiniciamos a la página 1 cada vez que se busca algo
+    paginaActual = 1; 
+    renderizarTablaPaginada();
+}
+
+function renderizarTablaPaginada() {
+    const tbody = document.getElementById('tablaProductos');
+    tbody.innerHTML = '';
+
+    if (datosFiltradosActuales.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">No se encontraron productos</td></tr>';
+        renderizarControlesPaginacion(0);
+        return;
+    }
+
+    // Calcular índices de inicio y fin para cortar el arreglo
+    const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+    const indiceFin = indiceInicio + registrosPorPagina;
+    const productosPagina = datosFiltradosActuales.slice(indiceInicio, indiceFin);
+
+    const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero', 'Gerencia de Ventas', 'Jefe de Ingenieria'];
+    const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
+
+    // Iteramos SOLO sobre los productos de la página actual
+    productosPagina.forEach(p => {
+        const tr = document.createElement('tr');
+        
+        let botonesAccion = "";
+        if (tienePermisosEdicion) {
+            botonesAccion = `
+                <button class="btn-editar" onclick="prepararEdicion(${p.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
+                <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">Eliminar</button>
+            `;
+        } else {
+            botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
+        }
+
+        tr.innerHTML = `
+            <td>${p.sku}</td>
+            <td>${p.nombre}</td>
+            <td>${p.presentacion || 'N/A'}</td>
+            <td>${p.area_nombre || 'Sin área'}</td>
+            <td>${p.categoria_nombre || 'Sin categoría'}</td>
+            <td>${p.marca_nombre || 'Sin marca'}</td>
+            <td>${p.equipo_nombre || 'General'}</td>
+            <td>${p.stock_minimo}</td>
+            <td>$${Number(p.precio).toFixed(2)}</td>
+            <td><span class="estado ${p.estado ? 'normal' : 'roja'}">${p.estado ? 'Activo' : 'Inactivo'}</span></td>
+            <td>${botonesAccion}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Dibujamos los botones de paginación
+    renderizarControlesPaginacion(datosFiltradosActuales.length);
+}
+
+// 5. NUEVA FUNCIÓN: Controles de Paginación
+function renderizarControlesPaginacion(totalRegistros) {
+    const contenedor = document.getElementById('controlesPaginacion');
+    contenedor.innerHTML = '';
+
+    if (totalRegistros <= registrosPorPagina) return; // No mostrar si no hay suficientes datos
+
+    const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.textContent = 'Anterior';
+    btnAnterior.disabled = paginaActual === 1;
+    btnAnterior.onclick = () => {
+        paginaActual--;
+        renderizarTablaPaginada();
+    };
+
+    const textoPagina = document.createElement('span');
+    textoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+    const btnSiguiente = document.createElement('button');
+    btnSiguiente.textContent = 'Siguiente';
+    btnSiguiente.disabled = paginaActual === totalPaginas;
+    btnSiguiente.onclick = () => {
+        paginaActual++;
+        renderizarTablaPaginada();
+    };
+
+    contenedor.appendChild(btnAnterior);
+    contenedor.appendChild(textoPagina);
+    contenedor.appendChild(btnSiguiente);
 }

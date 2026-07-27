@@ -3,6 +3,11 @@ let modoEdicion = false;
 let loteActualId = null;
 let rolUsuarioActual = null; // Variable global para guardar el rol
 
+// --- VARIABLES DE PAGINACIÓN ---
+let paginaActual = 1;
+const registrosPorPagina = 10;
+let datosFiltradosActuales = [];
+
 const API_URL = "http://localhost:3000/api";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -44,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             btnAgregar.style.display = 'none';
             btnSalida.style.display = 'none';
         } 
-         
     }
 
     document
@@ -63,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         .addEventListener("input", filtrarInventario);
 
     await cargarInventario(token);
-    await cargarSelectProductos(token);
+    await cargarSelects(token);
 });
 
 async function cargarInventario(token) {
@@ -84,11 +88,14 @@ async function cargarInventario(token) {
         const lotes = await res.json();
 
         lotesGenerales = lotes;
+        
+        // Inicializamos los datos filtrados con todos los lotes
+        datosFiltradosActuales = [...lotesGenerales];
 
-        renderizarTabla(lotesGenerales);
+        // Llamamos a la nueva función de paginación
+        renderizarTablaPaginada();
 
     } catch (error) {
-        
         console.error("Error al cargar inventario:", error);
 
         Swal.fire({
@@ -99,11 +106,12 @@ async function cargarInventario(token) {
     }
 }
 
-function renderizarTabla(lotesAMostrar) {
+// --- NUEVA FUNCIÓN: RENDERIZAR TABLA PAGINADA ---
+function renderizarTablaPaginada() {
     const tbody = document.getElementById("tablaInventario");
     tbody.innerHTML = "";
 
-    if (!lotesAMostrar || lotesAMostrar.length === 0) {
+    if (!datosFiltradosActuales || datosFiltradosActuales.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="6" style="text-align:center;">
@@ -111,8 +119,14 @@ function renderizarTabla(lotesAMostrar) {
                 </td>
             </tr>
         `;
+        renderizarControlesPaginacion(0);
         return;
     }
+
+    // Calcular índices de inicio y fin para cortar el arreglo
+    const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+    const indiceFin = indiceInicio + registrosPorPagina;
+    const lotesPagina = datosFiltradosActuales.slice(indiceInicio, indiceFin);
 
     const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero'];
     const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
@@ -120,15 +134,16 @@ function renderizarTabla(lotesAMostrar) {
     const hoy = new Date();
     const hoyStr = hoy.toISOString().split("T")[0];
 
-    lotesAMostrar.forEach((lote) => {
+    // Iteramos SOLO sobre los lotes de la página actual
+    lotesPagina.forEach((lote) => {
         let claseEstado = "normal";
         let estadoMostrar = lote.estado;
 
         let botonesAccion = "";
         if (tienePermisosEdicion) {
             botonesAccion = `
-                <button class="btn-editar" onclick="prepararEdicion(${marca.id})">Editar</button>
-                <button class="btn-eliminar" onclick="eliminarMarca(${marca.id})">Eliminar</button>
+                <button class="btn-editar" onclick="prepararEdicion(${lote.id})">Editar</button>
+                <button class="btn-eliminar" onclick="eliminarLote(${lote.id})">Eliminar</button>
             `;
         } else {
             botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
@@ -171,6 +186,44 @@ function renderizarTabla(lotesAMostrar) {
 
         tbody.appendChild(tr);
     });
+
+    // Dibujamos los botones de paginación
+    renderizarControlesPaginacion(datosFiltradosActuales.length);
+}
+
+// --- NUEVA FUNCIÓN: CONTROLES DE PAGINACIÓN ---
+function renderizarControlesPaginacion(totalRegistros) {
+    const contenedor = document.getElementById('controlesPaginacion');
+    if (!contenedor) return; // Evita errores si no se ha agregado el div al HTML
+
+    contenedor.innerHTML = '';
+
+    if (totalRegistros <= registrosPorPagina) return; 
+
+    const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.textContent = 'Anterior';
+    btnAnterior.disabled = paginaActual === 1;
+    btnAnterior.onclick = () => {
+        paginaActual--;
+        renderizarTablaPaginada();
+    };
+
+    const textoPagina = document.createElement('span');
+    textoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+    const btnSiguiente = document.createElement('button');
+    btnSiguiente.textContent = 'Siguiente';
+    btnSiguiente.disabled = paginaActual === totalPaginas;
+    btnSiguiente.onclick = () => {
+        paginaActual++;
+        renderizarTablaPaginada();
+    };
+
+    contenedor.appendChild(btnAnterior);
+    contenedor.appendChild(textoPagina);
+    contenedor.appendChild(btnSiguiente);
 }
 
 function filtrarInventario() {
@@ -179,7 +232,8 @@ function filtrarInventario() {
         .value
         .toLowerCase();
 
-    const lotesFiltrados = lotesGenerales.filter((lote) => {
+    // Actualizamos el arreglo de datos filtrados
+    datosFiltradosActuales = lotesGenerales.filter((lote) => {
         return (
             lote.producto_nombre.toLowerCase().includes(textoBuscado) ||
             lote.producto_sku.toLowerCase().includes(textoBuscado) ||
@@ -188,49 +242,59 @@ function filtrarInventario() {
         );
     });
 
-    renderizarTabla(lotesFiltrados);
+    // Reiniciamos a la página 1 cada vez que se busca algo
+    paginaActual = 1;
+    renderizarTablaPaginada();
 }
 
-async function cargarSelectProductos(token) {
+async function cargarSelects(token) {
     try {
-        const res = await fetch(`${API_URL}/productos`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        // Hacemos ambas peticiones al mismo tiempo para mayor velocidad
+        const [resProductos, resClientes] = await Promise.all([
+            fetch(`${API_URL}/productos`, { headers }),
+            fetch(`${API_URL}/clientes`, { headers })
+        ]);
 
-        const productos = await res.json();
+        const productos = await resProductos.json();
+        const clientes = await resClientes.json();
 
+        // 1. Llenar Productos
         const selectEntrada = document.getElementById("selectProducto");
         const selectSalida = document.getElementById("selectProductoSalida");
 
-        selectEntrada.innerHTML = `
-            <option value="">Seleccione un producto</option>
-        `;
-
-        selectSalida.innerHTML = `
-            <option value="">Seleccione un producto</option>
-        `;
+        selectEntrada.innerHTML = `<option value="">Seleccione un producto</option>`;
+        selectSalida.innerHTML = `<option value="">Seleccione un producto</option>`;
 
         productos.forEach((producto) => {
-            const optionEntrada = document.createElement("option");
-            optionEntrada.value = producto.id;
-            optionEntrada.textContent = `${producto.nombre} (SKU: ${producto.sku})`;
-            selectEntrada.appendChild(optionEntrada);
-
-            const optionSalida = document.createElement("option");
-            optionSalida.value = producto.id;
-            optionSalida.textContent = `${producto.nombre} (SKU: ${producto.sku})`;
-            selectSalida.appendChild(optionSalida);
+            // Solo mostramos productos activos
+            if (producto.estado) {
+                const texto = `[${producto.sku}] ${producto.nombre}`;
+                selectEntrada.appendChild(new Option(texto, producto.id));
+                selectSalida.appendChild(new Option(texto, producto.id));
+            }
         });
 
-    } catch (error) {
-        console.error("Error al cargar productos:", error);
+        // 2. Llenar Clientes
+        const selectCliente = document.getElementById("selectClienteSalida");
+        if (selectCliente) {
+            selectCliente.innerHTML = `<option value="">Ninguno (Uso interno / Merma)</option>`;
+            clientes.forEach((cliente) => {
+                if (cliente.estado !== 'Inactivo') {
+                    // Mostramos nombre_comercial si existe, si no, el nombre normal
+                    const nombreMostrar = cliente.nombre_comercial || cliente.nombre;
+                    selectCliente.appendChild(new Option(nombreMostrar, cliente.id));
+                }
+            });
+        }
 
+    } catch (error) {
+        console.error("Error al cargar catálogos:", error);
         Swal.fire({
             icon: "error",
             title: "Error",
-            text: "No se pudieron cargar los productos."
+            text: "No se pudieron cargar los catálogos para los formularios."
         });
     }
 }
@@ -329,14 +393,13 @@ document.getElementById("formAgregarLote").addEventListener("submit", async (e) 
             body: JSON.stringify(payload)
         });
 
-        // NUEVA VALIDACIÓN: Interceptar el 403 antes de parsear JSON
         if (res.status === 403) {
             Swal.fire({
                 icon: "warning",
                 title: "Acceso Denegado",
                 text: "No tienes permisos para modificar el inventario."
             });
-            return; // Detiene la ejecución aquí
+            return; 
         }
 
         const data = await res.json();
@@ -374,7 +437,7 @@ document.getElementById("formSalida").addEventListener("submit", async (e) => {
 
     const token = localStorage.getItem("nexura_token");
 
-    const cliente = document.getElementById("inputClienteSalida").value;
+    const cliente = document.getElementById("selectClienteSalida").value;
 
     const payload = {
         producto_id: document.getElementById("selectProductoSalida").value,
@@ -457,7 +520,6 @@ window.eliminarLote = async function (id) {
             }
         });
 
-        // NUEVA VALIDACIÓN: Interceptar el 403 de eliminación
         if (res.status === 403) {
             Swal.fire({
                 icon: "warning",

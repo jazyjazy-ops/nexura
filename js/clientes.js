@@ -3,6 +3,11 @@ let modoEdicion = false;
 let clienteActualId = null;
 let rolUsuarioActual = null;
 
+// --- VARIABLES DE PAGINACIÓN ---
+let paginaActual = 1;
+const registrosPorPagina = 10;
+let datosFiltradosActuales = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('nexura_token');
     const usuarioStr = localStorage.getItem('nexura_usuario');
@@ -64,21 +69,31 @@ async function cargarClientes(token) {
         // Filtramos para no mostrar los clientes inactivos
         clientesGenerales = clientes.filter(c => c.estado !== 'Inactivo');
         
-        renderizarTabla(clientesGenerales);
+        // Inicializamos los datos filtrados
+        datosFiltradosActuales = [...clientesGenerales];
+        
+        // Llamamos a la tabla paginada
+        renderizarTablaPaginada();
     } catch (error) {
         console.error("Error al cargar clientes:", error);
     }
 }
 
-// --- 2. RENDERIZAR TABLA CON ESTADÍSTICAS Y PERMISOS ---
-function renderizarTabla(clientes) {
+// --- 2. RENDERIZAR TABLA PAGINADA CON ESTADÍSTICAS Y PERMISOS ---
+function renderizarTablaPaginada() {
     const tbody = document.getElementById('tablaClientes');
     tbody.innerHTML = '';
 
-    if (clientes.length === 0) {
+    if (!datosFiltradosActuales || datosFiltradosActuales.length === 0) {
         tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No se encontraron clientes</td></tr>';
+        renderizarControlesPaginacion(0);
         return;
     }
+
+    // Calcular índices de inicio y fin para cortar el arreglo
+    const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+    const indiceFin = indiceInicio + registrosPorPagina;
+    const clientesPagina = datosFiltradosActuales.slice(indiceInicio, indiceFin);
 
     // Definición de jerarquía de botones
     const rolesCreacion = ['Direccion', 'Sub-Direccion', 'Gerencia de Ventas', 'Vendedor', 'Sistemas', 'Gerencia de Administracion'];
@@ -87,7 +102,8 @@ function renderizarTabla(clientes) {
     const puedeEditar = rolesCreacion.includes(rolUsuarioActual);
     const puedeEliminar = rolesEliminacion.includes(rolUsuarioActual);
 
-    clientes.forEach(c => {
+    // Iteramos SOLO sobre los clientes de la página actual
+    clientesPagina.forEach(c => {
         const tr = document.createElement('tr');
         
         // Formateo de fecha si existe
@@ -122,6 +138,63 @@ function renderizarTabla(clientes) {
         `;
         tbody.appendChild(tr);
     });
+
+    // Dibujamos los controles de paginación
+    renderizarControlesPaginacion(datosFiltradosActuales.length);
+}
+
+// --- NUEVA FUNCIÓN: CONTROLES DE PAGINACIÓN ---
+function renderizarControlesPaginacion(totalRegistros) {
+    const contenedor = document.getElementById('controlesPaginacion');
+    if (!contenedor) return;
+
+    contenedor.innerHTML = '';
+
+    if (totalRegistros <= registrosPorPagina) return; 
+
+    const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.textContent = 'Anterior';
+    btnAnterior.disabled = paginaActual === 1;
+    btnAnterior.onclick = () => {
+        paginaActual--;
+        renderizarTablaPaginada();
+    };
+
+    const textoPagina = document.createElement('span');
+    textoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+
+    const btnSiguiente = document.createElement('button');
+    btnSiguiente.textContent = 'Siguiente';
+    btnSiguiente.disabled = paginaActual === totalPaginas;
+    btnSiguiente.onclick = () => {
+        paginaActual++;
+        renderizarTablaPaginada();
+    };
+
+    contenedor.appendChild(btnAnterior);
+    contenedor.appendChild(textoPagina);
+    contenedor.appendChild(btnSiguiente);
+}
+
+// --- MODIFICACIÓN: FILTRADO EN TIEMPO REAL ---
+function filtrarClientes(e) {
+    const termino = e.target.value.toLowerCase();
+    
+    // Actualizamos los datos filtrados
+    datosFiltradosActuales = clientesGenerales.filter(c => {
+        return (
+            (c.nombre && c.nombre.toLowerCase().includes(termino)) ||
+            (c.correo && c.correo.toLowerCase().includes(termino)) ||
+            (c.telefono && c.telefono.toLowerCase().includes(termino)) ||
+            String(c.id).includes(termino)
+        );
+    });
+    
+    // Reiniciamos a la página 1 al filtrar
+    paginaActual = 1;
+    renderizarTablaPaginada();
 }
 
 // --- 3. FUNCIONES DEL MODAL ---
@@ -252,18 +325,4 @@ window.eliminarCliente = async function(id) {
             Swal.fire('Error', 'Fallo de conexión al servidor.', 'error');
         }
     }
-}
-
-// --- 6. FILTRADO SEGURO ---
-function filtrarClientes(e) {
-    const termino = e.target.value.toLowerCase();
-    const filtrados = clientesGenerales.filter(c => {
-        return (
-            (c.nombre && c.nombre.toLowerCase().includes(termino)) ||
-            (c.correo && c.correo.toLowerCase().includes(termino)) ||
-            (c.telefono && c.telefono.toLowerCase().includes(termino)) ||
-            String(c.id).includes(termino)
-        );
-    });
-    renderizarTabla(filtrados);
 }

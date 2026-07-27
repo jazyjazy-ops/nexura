@@ -1,3 +1,5 @@
+let rolUsuarioActual = null; // Variable global para guardar el rol
+
 document.addEventListener("DOMContentLoaded", async () => {
     // Protección de ruta
     const token = localStorage.getItem('nexura_token');
@@ -11,7 +13,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Inyectar datos del usuario
     const usuario = JSON.parse(usuarioStr);
     document.getElementById('nombreUsuario').textContent = usuario.nombre;
-    document.getElementById('rolUsuario').textContent = usuario.departamento || 'Administración';
+    
+    // Guardamos el rol globalmente
+    rolUsuarioActual = usuario.departamento || usuario.rol || 'Administración';
+    document.getElementById('rolUsuario').textContent = rolUsuarioActual;
+
+    // 1. Validar permiso para ver gráficas
+    const rolesDirectivos = ['Direccion', 'Sub-Direccion', 'Gerencia de Administracion', 'Gerencia de Operaciones', 'Sistemas'];
+    if (!rolesDirectivos.includes(rolUsuarioActual)) {
+        const seccionGraficas = document.querySelector(".graficas");
+        if (seccionGraficas) {
+            seccionGraficas.style.display = 'none'; // Oculta todo el bloque visualmente
+        }
+    }
 
     // Configurar cierre de sesión
     document.getElementById('btnCerrarSesion').addEventListener('click', (e) => {
@@ -118,12 +132,14 @@ function procesarMetricasYGraficas(productos, lotes) {
     // Extraemos solo los primeros 5
     const top5Critico = listaStock.slice(0, 5);
 
-    // 5. Renderizar Gráficas
-    renderizarGraficaCostos(costosPorArea);
-    renderizarGraficaTopCritico(top5Critico); // Llamamos a la nueva función
+    // 5. Renderizar Gráficas (SOLO si el usuario tiene permiso)
+    const rolesDirectivos = ['Direccion', 'Sub-Direccion', 'Gerencia de Administracion', 'Gerencia de Operaciones', 'Sistemas'];
+    
+    if (rolesDirectivos.includes(rolUsuarioActual)) {
+        renderizarGraficaCostos(costosPorArea);
+        renderizarGraficaTopCritico(top5Critico); 
+    }
 }
-
-// (Tu función renderizarGraficaCostos se queda exactamente igual)
 
 function renderizarGraficaTopCritico(top5) {
     const ctx = document.getElementById('graficaTopCritico').getContext('2d');
@@ -186,4 +202,3 @@ function renderizarGraficaCostos(datos) {
         }
     });
 }
-

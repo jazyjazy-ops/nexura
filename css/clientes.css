@@ -218,3 +218,27 @@ tbody tr:hover{
 .btn-historial:hover {
     opacity: 0.85;
 }
+
+/* Limitar el ancho de la columna de Estado (Columna 10) */
+#tablaClientes td:nth-child(10), 
+#tablaClientes th:nth-child(10) {
+    width: 100px;
+    text-align: center;
+}
+
+/* Evitar que los botones de acción se partan y asegurar espacio (Columna 11) */
+#tablaClientes td:last-child,
+#tablaClientes th:last-child {
+    white-space: nowrap;
+    width: 180px; /* Espacio suficiente para Editar y Eliminar */
+    text-align: center;
+}
+
+/* Evitar que nombres de productos o presentaciones muy largas rompan el diseño */
+#tablaClientes td:nth-child(2), /* Columna de Producto */
+#tablaClientes td:nth-child(3)  /* Columna de Presentación */ {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

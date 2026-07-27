@@ -51,6 +51,7 @@
                 <th>Producto</th>
                 <th>Presentación</th>
                 <th>Área</th>
+                <th>Categoría</th>
                 <th>Marca</th>
                 <th>Equipo Compatible</th>
                 <th>Stock mínimo</th>
@@ -62,6 +63,7 @@
         <tbody id="tablaProductos">
         </tbody>
     </table>
+    <div id="controlesPaginacion" class="paginacion"></div>
 
     <div class="modal" id="modalProducto">
         <div class="modal-contenido">
@@ -79,9 +81,14 @@
                 <label>Descripción:</label>
                 <input type="text" id="inputDescripcion">
 
-                <label>Área / Categoría:</label>
+                <label>Área:</label>
                 <select id="selectArea" required>
                     <option value="">Cargando áreas...</option>
+                </select>
+
+                <label>Categoría:</label>
+                <select id="selectCategoria">
+                    <option value="">Cargando categorías...</option>
                 </select>
 
                 <label>Marca / Proveedor:</label>

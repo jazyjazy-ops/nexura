@@ -210,3 +210,27 @@ td{
     gap:15px;
     margin-top:25px;
 }
+
+/* Limitar el ancho de la columna de Estado (Columna 10) */
+#tablaProductos td:nth-child(10), 
+#tablaProductos th:nth-child(10) {
+    width: 100px;
+    text-align: center;
+}
+
+/* Evitar que los botones de acción se partan y asegurar espacio (Columna 11) */
+#tablaProductos td:last-child,
+#tablaProductos th:last-child {
+    white-space: nowrap;
+    width: 180px; /* Espacio suficiente para Editar y Eliminar */
+    text-align: center;
+}
+
+/* Evitar que nombres de productos o presentaciones muy largas rompan el diseño */
+#tablaProductos td:nth-child(2), /* Columna de Producto */
+#tablaProductos td:nth-child(3)  /* Columna de Presentación */ {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

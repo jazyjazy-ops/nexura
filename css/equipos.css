@@ -265,3 +265,24 @@ tbody tr:hover {
         width: 100%;
     }
 }
+
+/* Limitar el ancho de la columna de Estado */
+#tablaEquipos td:nth-child(10), 
+#tablaEquipos th:nth-child(10) {
+    width: 100px;
+    text-align: center;
+}
+
+/* Evitar que los botones de acción se partan en varias líneas */
+#tablaEquipos td:last-child {
+    white-space: nowrap;
+    width: 180px; /* Ancho fijo suficiente para ambos botones */
+}
+
+/* Opcional: Evitar que el nombre del cliente rompa la tabla si es muy largo */
+#tablaEquipos td:nth-child(7) {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

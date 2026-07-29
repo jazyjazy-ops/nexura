@@ -242,3 +242,26 @@ tbody tr:hover{
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Le damos permiso al modal de expandirse más en pantallas grandes */
+.modal-largo {
+    background:white;
+    border-radius:12px;
+    padding:30px;
+    width: 95%;
+    max-width: 1100px; 
+}
+
+/* Creamos un contenedor scrolleable para proteger el diseño */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+    /* Esto hace que el scroll en tablets/celulares sea muy suave */
+    -webkit-overflow-scrolling: touch; 
+}
+
+/* Opcional: Aseguramos que la tabla no se apachurre demasiado */
+.table-responsive .tabla-estilo {
+    min-width: 800px; /* Obliga a la tabla a mantener un buen tamaño, activando el scroll si la pantalla es menor */
+}

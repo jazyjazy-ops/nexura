@@ -44,10 +44,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const marcaABuscar = urlParams.get('marca');
+    const areaABuscar = urlParams.get('area');
+    const categoriaABuscar = urlParams.get('categoria');
 
     if (marcaABuscar) {
         const marcaDecodificada = decodeURIComponent(marcaABuscar);
         inputBusqueda.value = marcaDecodificada;
+        filtrarProductos({ target: inputBusqueda });
+    } else if (areaABuscar) {
+        const areaDecodificada = decodeURIComponent(areaABuscar);
+        inputBusqueda.value = areaDecodificada;
+        filtrarProductos({ target: inputBusqueda });
+    } else if (categoriaABuscar) {
+        const categoriaDecodificada = decodeURIComponent(categoriaABuscar);
+        inputBusqueda.value = categoriaDecodificada;
         filtrarProductos({ target: inputBusqueda });
     }
 });

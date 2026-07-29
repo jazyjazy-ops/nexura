@@ -115,6 +115,8 @@ function renderizarTablaPaginada() {
 
         // Construcción de botones de acción
         let botonesAccion = "";
+        // Dentro de tu renderizarTablaPaginada()
+        botonesAccion += `<button onclick="abrirHistorial(${c.id}, '${c.nombre}')" style="background-color: #2ecc71; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Historial</button>`;
         if (puedeEditar) {
             botonesAccion += `<button class="btn-editar" onclick="prepararEdicion(${c.id})" style="background-color: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>`;
         }
@@ -128,6 +130,7 @@ function renderizarTablaPaginada() {
         tr.innerHTML = `
             <td>${c.id}</td>
             <td><strong>${c.nombre}</strong></td>
+            <td>${c.razon_social || 'N/A'}</td>
             <td>${c.telefono || 'N/A'}</td>
             <td>${c.correo || 'N/A'}</td>
             <td>${c.ultima_compra || 'Ninguna'}</td>
@@ -324,5 +327,57 @@ window.eliminarCliente = async function(id) {
         } catch (error) {
             Swal.fire('Error', 'Fallo de conexión al servidor.', 'error');
         }
+    }
+};
+
+window.cerrarModalHistorial = function() {
+    document.getElementById("modalHistorial").style.display = "none";
+}
+
+window.abrirHistorial = async function(clienteId, nombreCliente) {
+    document.getElementById("nombreClienteHistorial").textContent = nombreCliente;
+    const tbody = document.getElementById("tablaHistorialCuerpo");
+    tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Cargando historial...</td></tr>";
+    
+    document.getElementById("modalHistorial").style.display = "flex";
+
+    const token = localStorage.getItem('nexura_token');
+    
+    try {
+        const res = await fetch(`http://localhost:3000/api/clientes/${clienteId}/historial`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        
+        if (res.ok) {
+            const historial = await res.json();
+            tbody.innerHTML = "";
+            
+            if (historial.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Este cliente aún no tiene compras registradas.</td></tr>";
+                return;
+            }
+
+            historial.forEach(mov => {
+                const tr = document.createElement("tr");
+                const fechaObj = new Date(mov.fecha_hora);
+                const fechaStr = fechaObj.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: '2-digit' });
+                
+                // Calculamos el subtotal (Cantidad x Precio)
+                const precio = parseFloat(mov.precio_venta || 0);
+
+                tr.innerHTML = `
+                    <td>${fechaStr}</td>
+                    <td>${mov.folio}</td>
+                    <td>${mov.sku}</td>
+                    <td>${mov.producto}</td>
+                    <td>${mov.numero_lote}</td> <!-- Nuevo dato -->
+                    <td>${mov.cantidad}</td>
+                    <td>$${precio.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (error) {
+        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; color:red;'>Error al cargar el historial.</td></tr>";
     }
 }

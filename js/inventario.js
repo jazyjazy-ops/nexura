@@ -444,6 +444,9 @@ document.getElementById("formSalida").addEventListener("submit", async (e) => {
         cantidad_solicitada: parseInt(
             document.getElementById("inputCantidadSalida").value
         ),
+        precio_total: parseInt(
+            document.getElementById("inputPrecio").value
+        ),
         folio: document.getElementById("inputFolioSalida").value,
         cliente_id: cliente ? parseInt(cliente) : null,
         comentarios:

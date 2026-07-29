@@ -24,6 +24,8 @@
             <a href="../views/panel.html"><li>🏠 Panel general</li></a>
             <a href="../views/inventario.html"><li>📦 Inventario</li></a>
             <a href="../views/marcas.html"><li>🏷️ Marcas</li></a>
+            <a href="../views/areas.html"><li>🧬 Áreas</li></a>
+            <a href="../views/categorias.html"><li>🎯 Categorías</li></a>
             <a href="../views/equipos.html"><li>🖥️ Equipos</li></a>
             <a href="../views/productos.html"><li>🧪 Productos</li></a>
             <a href="../views/clientes.html"><li class="activo">👥 Clientes</li></a>
@@ -75,6 +77,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Cliente</th>
+                    <th>Razon Social</th>
                     <th>Teléfono</th>
                     <th>Correo</th>
                     <th>Última compra</th>
@@ -111,6 +114,9 @@
                     id="inputNombre"
                     required
                 >
+
+                <label for="inputRazonSocial">Razón Social:</label>
+                <input type="text" id="inputRazonSocial" placeholder="Ej. Laboratorios Nacionales S.A. de C.V.">
 
                 <label>Teléfono</label>
                 <input
@@ -149,6 +155,33 @@
 
     </div>
 
+    <div id="modalHistorial" class="modal" style="display: none;">
+    <div class="modal-largo">
+        <span class="cerrar" onclick="cerrarModalHistorial()">&times;</span>
+        <h2>Historial de Compras: <span id="nombreClienteHistorial"></span></h2>
+        
+        <!-- ESTE ES EL NUEVO CONTENEDOR -->
+        <div class="table-responsive">
+            <table class="tabla-estilo">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Folio</th>
+                        <th>SKU</th>
+                        <th>Producto</th>
+                        <th>Lote</th>
+                        <th>Cant.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaHistorialCuerpo">
+                    <!-- Se llena con JS -->
+                </tbody>
+            </table>
+        </div>
+        <!-- FIN DEL NUEVO CONTENEDOR -->
+
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -19,6 +19,8 @@
             <a href="../views/panel.html"><li>🏠 Panel general</li></a>
             <a href="../views/inventario.html"><li>📦 Inventario</li></a>
             <a href="../views/marcas.html"><li>🏷️ Marcas</li></a>
+            <a href="../views/areas.html"><li>🧬 Áreas</li></a>
+            <a href="../views/categorias.html"><li>🎯 Categorías</li></a>
             <a href="../views/equipos.html"><li>🖥️ Equipos</li></a>
             <a href="../views/productos.html"><li>🧪 Productos</li></a>
             <a href="../views/clientes.html"><li>👥 Clientes</li></a>
@@ -41,8 +43,6 @@
 
     <div class="barra-acciones">
         <input type="text" id="inputBusqueda" placeholder="Buscar por producto, folio, usuario o cliente">
-        <button class="btn-filtrar">Filtrar</button>
-        <button class="btn-agregar" onclick="prepararNuevaSalida()">Registrar Salida</button>
     </div>
 
     <table>
@@ -53,6 +53,7 @@
                 <th>Producto (SKU)</th>
                 <th>Lote Afectado</th>
                 <th>Cantidad</th>
+                <th>Precio</th>
                 <th>Cliente / Destino</th>
                 <th>Usuario</th>
                 <th>Fecha y Hora</th>
@@ -63,38 +64,6 @@
     </table>
 
     <div id="controlesPaginacion" class="paginacion"></div>
-
-    <div class="modal" id="modalMovimiento">
-        <div class="modal-contenido">
-            <h2>Registrar Salida de Material</h2>
-            
-            <form id="formSalida">
-                <label>Folio de Documento / Ticket:</label>
-                <input type="text" id="inputFolio" placeholder="Ej. TICKET-001" required>
-
-                <label>Producto a despachar:</label>
-                <select id="selectProducto" required>
-                    <option value="">Cargando productos en stock...</option>
-                </select>
-
-                <label>Cliente / Destino (Opcional):</label>
-                <select id="selectCliente">
-                    <option value="">Ninguno (Uso interno / Merma)</option>
-                </select>
-
-                <label>Cantidad solicitada:</label>
-                <input type="number" id="inputCantidad" min="1" required>
-
-                <label>Comentarios / Motivo:</label>
-                <input type="text" id="inputComentarios" placeholder="Ej. Venta a laboratorio central">
-
-                <div class="botones-modal">
-                    <button type="submit" class="btn-agregar">Procesar Salida</button>
-                    <button type="button" class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
 </div>
 

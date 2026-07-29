@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcas - Nexura</title>
+    <title>Categorias - Nexura</title>
     <link rel="stylesheet" href="../css/marcas.css">
     <link rel="stylesheet" href="../css/menu.css">
 </head>
@@ -20,9 +20,9 @@
         <ul class="menu">
             <a href="../views/panel.html"><li>🏠 Panel general</li></a>
             <a href="../views/inventario.html"><li>📦 Inventario</li></a>
-            <a href="../views/marcas.html"><li class="activo">🏷️ Marcas</li></a>
+            <a href="../views/marcas.html"><li>🏷️ Marcas</li></a>
             <a href="../views/areas.html"><li>🧬 Áreas</li></a>
-            <a href="../views/categorias.html"><li>🎯 Categorías</li></a>
+            <a href="../views/categorias.html"><li class="activo">🎯 Categorías</li></a>
             <a href="../views/equipos.html"><li>🖥️ Equipos</li></a>
             <a href="../views/productos.html"><li>🧪 Productos</li></a>
             <a href="../views/clientes.html"><li>👥 Clientes</li></a>
@@ -34,7 +34,7 @@
     <div class="contenido">
 
         <div class="encabezado">
-            <h1>Marcas / Proveedores</h1>
+            <h1>Categorias</h1>
             
             <div class="acciones-encabezado">
                 <div class="usuario" id="infoUsuario">
@@ -53,28 +53,28 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Marca</th>
+                    <th>Categoria</th>
                     <th>Descripción</th>
                     <th>Consultar productos</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
 
-            <tbody id="tablaMarcas">
+            <tbody id="tablaCategorias">
             </tbody>
         </table>
 
         <div id="controlesPaginacion" class="paginacion"></div>
 
-        <div class="modal" id="modalMarca">
+        <div class="modal" id="modalCategoria">
 
             <div class="modal-contenido">
 
-                <h2>Agregar marca</h2>
+                <h2>Agregar Categoria</h2>
 
-                <form id="formMarca">
+                <form id="formCategoria">
 
-                    <label>Nombre de la marca:</label>
+                    <label>Nombre de la Categoria:</label>
                     <input type="text" id="inputNombre" required>
 
                     <label>Descripción:</label>
@@ -95,17 +95,17 @@
 
 <script>
     function abrirModal(){
-        document.getElementById("modalMarca").style.display = "flex";
+        document.getElementById("modalCategoria").style.display = "flex";
     }
 
     function cerrarModal(){
-        document.getElementById("modalMarca").style.display = "none";
+        document.getElementById("modalCategoria").style.display = "none";
     }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../js/menu.js"></script>
-<script src="../js/marcas.js"></script>
+<script src="../js/categorias.js"></script>
 
 </body>
 </html>

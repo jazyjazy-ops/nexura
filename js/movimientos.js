@@ -104,9 +104,11 @@ function renderizarTablaPaginada() {
             hour: '2-digit', minute:'2-digit' 
         });
 
-        // Colores según el tipo de movimiento
         const esEntrada = mov.tipo_movimiento.toLowerCase() === 'entrada';
         const claseEstado = esEntrada ? 'normal' : 'roja';
+        
+        const precioVenta = mov.precio_venta || mov.precio || 0; 
+        const textoPrecio = esEntrada ? 'N/A' : `$${parseFloat(precioVenta).toFixed(2)}`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -115,6 +117,7 @@ function renderizarTablaPaginada() {
             <td>[${mov.sku}] ${mov.producto}</td>
             <td>${mov.numero_lote}</td>
             <td>${esEntrada ? '+' : '-'}${mov.cantidad}</td>
+            <td>${textoPrecio}</td>
             <td>${mov.cliente || 'N/A'}</td>
             <td>${mov.usuario}</td>
             <td>${fechaFormateada}</td>

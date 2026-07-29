@@ -119,3 +119,7 @@ a{
 .modal-contenido select option {
     white-space: normal;
 }
+
+.roja{
+    background: #8a0000;
+}

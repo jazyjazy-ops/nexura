@@ -20,8 +20,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 1. Validar permiso para ver gráficas
     const rolesDirectivos = ['Direccion', 'Sub-Direccion', 'Gerencia de Administracion', 'Gerencia de Operaciones', 'Sistemas'];
-    if (!rolesDirectivos.includes(rolUsuarioActual)) {
-        const seccionGraficas = document.querySelector(".graficas");
+
+    const accionesEncabezado = document.querySelector('.acciones-encabezado');
+    const botonAgregarUsuario = `<a href="../views/registro.html" id="btnAgregarUsuario" class="btn-agregar" style="margin-right: 15px;">🆔 Agregar Usuario</a>`;
+
+    if (rolesDirectivos.includes(rolUsuarioActual)) {
+
+            accionesEncabezado.insertAdjacentHTML('beforeend', botonAgregarUsuario);
+    } else {
+        
+         const seccionGraficas = document.querySelector(".graficas");
         if (seccionGraficas) {
             seccionGraficas.style.display = 'none'; // Oculta todo el bloque visualmente
         }

@@ -249,3 +249,13 @@ a{
 .roja-tarjeta{
     background:#FF9A9A;
 }
+
+.btn-agregar{
+    padding:12px 25px;
+    background:#10b981;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+}

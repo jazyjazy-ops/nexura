@@ -149,7 +149,7 @@ window.prepararEdicion = function(id) {
     const a = categoriasGenerales.find(x => x.id === id);
     if (!a) return;
     document.getElementById("tituloModal").textContent = "Editar Área";
-    document.getElementById('inputNombre').value = a.nombre;
+    document.getElementById('inputNombr').value = a.nombre;
     abrirModal();
 }
 

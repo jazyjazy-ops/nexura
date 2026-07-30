@@ -132,7 +132,7 @@ function renderizarTablaPaginada() {
             <td><strong>${c.nombre}</strong></td>
             <td>${c.razon_social || 'N/A'}</td>
             <td>${c.telefono || 'N/A'}</td>
-            <td>${c.correo || 'N/A'}</td>
+            <td>${c.direccion || 'N/A'}</td>
             <td>${c.ultima_compra || 'Ninguna'}</td>
             <td>${fechaFormateada}</td>
             <td>${c.producto_favorito || 'N/A'}</td>
@@ -223,7 +223,7 @@ window.prepararEdicion = function(id) {
     
     document.getElementById('inputNombre').value = cliente.nombre;
     document.getElementById('inputTelefono').value = cliente.telefono || '';
-    document.getElementById('inputCorreo').value = cliente.correo || '';
+    document.getElementById('inputDireccion').value = cliente.direccion || '';
 
     abrirModal();
 }
@@ -236,7 +236,8 @@ document.getElementById('formCliente').addEventListener('submit', async (e) => {
     const payload = {
         nombre: document.getElementById('inputNombre').value,
         telefono: document.getElementById('inputTelefono').value,
-        correo: document.getElementById('inputCorreo').value
+        razon_social: document.getElementById('inputRazonSocial').value,
+        direccion: document.getElementById('inputDireccion').value
     };
 
     let url = "http://localhost:3000/api/clientes";

@@ -41,6 +41,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     await cargarSelects(token);
     await cargarEquipos(token);
 
+    const selectPermiso = document.getElementById('selectPermiso');
+    const inputTermino = document.getElementById('inputFechaTermino');
+
+    selectPermiso.addEventListener('change', (e) => {
+        if (e.target.value === "Permanente") {
+            inputTermino.disabled = true;
+            inputTermino.value = "";
+        } else {
+            inputTermino.disabled = false;
+        }
+    });
+
     document.getElementById('inputBusqueda').addEventListener('input', filtrarEquipos);
 });
 
@@ -162,7 +174,8 @@ function renderizarTablaPaginada() {
             <td>${eq.id}</td>
             <td><strong>${eq.nombre}</strong></td>
             <td>${eq.numero_serie}</td>
-            <td>${eq.modelo || 'N/A'}</td>
+            <td>${eq.permiso || 'N/A'}</td>
+            <td>${formatearFecha(eq.duracion_permiso) || 'N/A'}</td>
             <td>${eq.area_nombre || 'N/A'}</td>
             <td>${eq.marca_nombre || 'N/A'}</td>
             <td>${eq.cliente_nombre || 'Interno / N/A'}</td>
@@ -233,8 +246,6 @@ function filtrarEquipos(e) {
     renderizarTablaPaginada();
 }
 
-// --- FUNCIONES DEL MODAL ---
-// --- FUNCIONES DEL MODAL ---
 window.prepararEdicion = function(id) {
     modoEdicion = true;
     equipoActualId = id;
@@ -246,7 +257,6 @@ window.prepararEdicion = function(id) {
     // Inputs de texto protegidos contra nulos
     document.getElementById('inputNombre').value = eq.nombre || '';
     document.getElementById('inputSerie').value = eq.numero_serie || '';
-    document.getElementById('inputModelo').value = eq.modelo || '';
 
     // FUNCIÓN AUXILIAR SEGURA: Inyecta el valor al select solo si existe, y maneja los nulos
     const asignarSelectSeguro = (idElemento, valor) => {
@@ -270,6 +280,7 @@ window.prepararEdicion = function(id) {
     
     document.getElementById('inputFechaInstalacion').value = parseFechaInput(eq.fecha_instalacion);
     document.getElementById('inputFechaMantenimiento').value = parseFechaInput(eq.fecha_mantenimiento);
+    document.getElementById('inputFechaMantenimiento').value = parseFechaInput(eq.duracion_permiso);
 
     abrirModalEquipo();
 }
@@ -285,7 +296,8 @@ document.getElementById('formEquipo').addEventListener('submit', async (e) => {
     const payload = {
         nombre: document.getElementById('inputNombre').value,
         numero_serie: document.getElementById('inputSerie').value,
-        modelo: getValueOrNull('inputModelo'),
+        permiso: document.getElementById('selectPermiso').value,
+        duracion_permiso: getValueOrNull('inputFechaTermino'),
         area_id: parseInt(document.getElementById('selectArea').value),
         marca_id: document.getElementById('selectMarca').value ? parseInt(document.getElementById('selectMarca').value) : null,
         cliente_id: document.getElementById('selectCliente').value ? parseInt(document.getElementById('selectCliente').value) : null,

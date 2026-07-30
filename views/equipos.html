@@ -88,7 +88,8 @@
                     <th>ID</th>
                     <th>Equipo</th>
                     <th>Número de serie</th>
-                    <th>Modelo</th>
+                    <th>Permiso</th>
+                    <th>Fecha Término</th>
                     <th>Área</th>
                     <th>Marca</th>
                     <th>Cliente</th>
@@ -122,8 +123,14 @@
                 <label for="inputSerie">Número de serie:</label>
                 <input type="text" id="inputSerie" required>
 
-                <label for="inputModelo">Modelo:</label>
-                <input type="text" id="inputModelo">
+                <label for="selectPermiso">Permiso de uso</label>
+                <select id="selectPermiso" required>
+                    <option value="Permanente">Permanente</option>
+                    <option value="Prestado">Préstamo</option>
+                </select>
+
+                <label for="inputFechaTermino">Fecha de terminación del préstamo:</label>
+                <input type="date" id="inputFechaTermino">
 
                 <label for="selectArea">Área designada:</label>
                 <select id="selectArea" required>
@@ -167,6 +174,14 @@
 <script>
     function abrirModalEquipo() {
         document.getElementById("modalEquipo").style.display = "flex";
+        const permiso = document.getElementById('selectPermiso').value;
+        const inputTermino = document.getElementById('inputFechaTermino'); 
+    
+        if (permiso === "Permanente"){
+            inputTermino.disabled = true;
+        } else {
+            inputTermino.disabled = false;
+        }
     }
 
     function cerrarModalEquipo() {

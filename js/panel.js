@@ -35,6 +35,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "login.html";
     });
 
+    // --- NUEVO: Eventos Click para las Tarjetas ---
+    // Buscamos la tarjeta padre usando closest() a partir del ID del contador
+    
+    const tarjetaBajo = document.getElementById('cardBajo')?.closest('.tarjeta');
+    if (tarjetaBajo) {
+        tarjetaBajo.style.cursor = 'pointer';
+        tarjetaBajo.title = "Ver productos con stock bajo";
+        tarjetaBajo.addEventListener('click', () => {
+            window.location.href = 'productos.html?filtro=stock_bajo';
+        });
+    }
+
+    const tarjetaSinStock = document.getElementById('cardSinStock')?.closest('.tarjeta');
+    if (tarjetaSinStock) {
+        tarjetaSinStock.style.cursor = 'pointer';
+        tarjetaSinStock.title = "Ver productos agotados";
+        tarjetaSinStock.addEventListener('click', () => {
+            window.location.href = 'productos.html?filtro=sin_stock';
+        });
+    }
+
     await cargarDatosDashboard(token);
 });
 
@@ -82,18 +103,22 @@ function procesarMetricasYGraficas(productos, lotes) {
     // 1. Calcular el stock actual agrupando los lotes por producto
     const stockPorProducto = {};
     lotes.forEach(lote => {
-        if (!stockPorProducto[lote.producto_id]) {
-            stockPorProducto[lote.producto_id] = 0;
+        // Solo sumamos si el lote está activo (buena práctica que aplicamos antes)
+        if (lote.estado === 'Activo') {
+            if (!stockPorProducto[lote.producto_id]) {
+                stockPorProducto[lote.producto_id] = 0;
+            }
+            stockPorProducto[lote.producto_id] += Number(lote.cantidad_disponible);
         }
-        stockPorProducto[lote.producto_id] += Number(lote.cantidad_disponible);
     });
 
     let contNormal = 0;
     let contBajo = 0;
     let contSinStock = 0;
 
-    const costosPorArea = {};
-    const listaStock = []; // Arreglo nuevo para clasificar el Top 5
+    // NUEVO: Cambiamos "costosPorArea" a "unidadesPorArea" ya que no hay precio en productos
+    const unidadesPorArea = {}; 
+    const listaStock = []; 
 
     // 2. Evaluar cada producto contra su stock mínimo
     productos.forEach(prod => {
@@ -109,9 +134,9 @@ function procesarMetricasYGraficas(productos, lotes) {
             contNormal++;
         }
 
-        // Agrupación para gráfica 1: Costo total por área
-        if (!costosPorArea[area]) costosPorArea[area] = 0;
-        costosPorArea[area] += (stockActual * Number(prod.precio));
+        // NUEVO: Agrupación para gráfica 1 (Sumamos stock en lugar de dinero)
+        if (!unidadesPorArea[area]) unidadesPorArea[area] = 0;
+        unidadesPorArea[area] += stockActual;
 
         // Insertar en la lista para la nueva gráfica
         listaStock.push({
@@ -136,7 +161,7 @@ function procesarMetricasYGraficas(productos, lotes) {
     const rolesDirectivos = ['Direccion', 'Sub-Direccion', 'Gerencia de Administracion', 'Gerencia de Operaciones', 'Sistemas'];
     
     if (rolesDirectivos.includes(rolUsuarioActual)) {
-        renderizarGraficaCostos(costosPorArea);
+        renderizarGraficaUnidades(unidadesPorArea); // Cambiamos el nombre de la función
         renderizarGraficaTopCritico(top5Critico); 
     }
 }
@@ -155,17 +180,17 @@ function renderizarGraficaTopCritico(top5) {
             datasets: [{
                 label: 'Unidades Disponibles',
                 data: cantidades,
-                backgroundColor: 'rgba(243, 156, 18, 0.8)', // Color de advertencia
+                backgroundColor: 'rgba(243, 156, 18, 0.8)', 
                 borderColor: 'rgba(230, 126, 34, 1)',
                 borderWidth: 1,
                 borderRadius: 5
             }]
         },
         options: {
-            indexAxis: 'y', // Esto es lo que gira la gráfica horizontalmente
+            indexAxis: 'y', 
             responsive: true,
             plugins: {
-                legend: { display: false } // Ocultamos la leyenda para que se vea más limpio
+                legend: { display: false } 
             },
             scales: {
                 x: {
@@ -176,7 +201,8 @@ function renderizarGraficaTopCritico(top5) {
     });
 }
 
-function renderizarGraficaCostos(datos) {
+// NUEVO: Función ajustada para mostrar unidades por área
+function renderizarGraficaUnidades(datos) {
     const ctx = document.getElementById('graficaCostos').getContext('2d');
     const etiquetas = Object.keys(datos);
     const valores = Object.values(datos);
@@ -186,7 +212,7 @@ function renderizarGraficaCostos(datos) {
         data: {
             labels: etiquetas,
             datasets: [{
-                label: 'Costo Monetario ($)',
+                label: 'Total de Unidades Físicas', // Cambiamos la etiqueta
                 data: valores,
                 backgroundColor: 'rgba(52, 152, 219, 0.7)',
                 borderColor: 'rgba(41, 128, 185, 1)',

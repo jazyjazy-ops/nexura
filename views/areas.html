@@ -11,12 +11,10 @@
 <button class="menu-btn" onclick="abrirMenu()">☰</button>
     
 <div class="sidebar" id="sidebar">
-
         <div class="logo-panel">
             <img src="../img/logo.png" alt="Logo Nexura">
             <h2>Nexura</h2>
         </div>
-
         <ul class="menu">
             <a href="../views/panel.html"><li>🏠 Panel general</li></a>
             <a href="../views/inventario.html"><li>📦 Inventario</li></a>
@@ -28,14 +26,11 @@
             <a href="../views/clientes.html"><li>👥 Clientes</li></a>
             <a href="../views/movimientos.html"><li>📊 Reporte de movimientos</li></a>
         </ul>
-
     </div>
 
     <div class="contenido">
-
         <div class="encabezado">
             <h1>Áreas</h1>
-            
             <div class="acciones-encabezado">
                 <div class="usuario" id="infoUsuario">
                     👤 <span id="nombreUsuario">Cargando...</span> | <span id="rolUsuario"></span>
@@ -46,7 +41,8 @@
 
         <div class="barra-acciones">
             <input type="text" id="inputBusqueda" placeholder="Buscar por nombre o ID">
-            <button class="btn-agregar" onclick="abrirModal()">Agregar</button>
+            <!-- CORRECCIÓN: Cambiado de abrirModal() a prepararNuevaArea() -->
+            <button class="btn-agregar" onclick="prepararNuevaArea()">Agregar</button>
         </div>
 
         <table>
@@ -54,12 +50,11 @@
                 <tr>
                     <th>ID</th>
                     <th>Área</th>
-                    <th>Descripción</th>
+                    <th>Estado</th> <!-- CORRECCIÓN: Se cambió Descripción por Estado -->
                     <th>Consultar productos</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
-
             <tbody id="tablaAreas">
             </tbody>
         </table>
@@ -67,41 +62,24 @@
         <div id="controlesPaginacion" class="paginacion"></div>
 
         <div class="modal" id="modalArea">
-
             <div class="modal-contenido">
-
-                <h2>Agregar Área</h2>
+                <!-- CORRECCIÓN: Se agregó el id="tituloModal" -->
+                <h2 id="tituloModal">Agregar Área</h2>
 
                 <form id="formArea">
-
                     <label>Nombre del área:</label>
                     <input type="text" id="inputNombre" required>
 
-                    <label>Descripción:</label>
-                    <input type="text" id="inputDescripcion" required>
+                    <!-- CORRECCIÓN: Se eliminó el input de descripción -->
 
                     <div class="botones-modal">
                         <button type="submit" class="btn-agregar">Guardar</button>
                         <button type="button" class="btn-eliminar" onclick="cerrarModal()">Cancelar</button>
                     </div>
-
                 </form>
-
             </div>
-
         </div>
-
     </div>
-
-<script>
-    function abrirModal(){
-        document.getElementById("modalArea").style.display = "flex";
-    }
-
-    function cerrarModal(){
-        document.getElementById("modalArea").style.display = "none";
-    }
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../js/menu.js"></script>

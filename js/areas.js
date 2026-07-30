@@ -149,14 +149,14 @@ window.prepararEdicion = function(id) {
     const a = areasGenerales.find(x => x.id === id);
     if (!a) return;
     document.getElementById("tituloModal").textContent = "Editar Área";
-    document.getElementById('inputNombreArea').value = a.nombre;
+    document.getElementById('inputNombre').value = a.nombre;
     abrirModal();
 }
 
 document.getElementById('formArea').addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('nexura_token');
-    const payload = { nombre: document.getElementById('inputNombreArea').value };
+    const payload = { nombre: document.getElementById('inputNombre').value };
 
     let url = "http://localhost:3000/api/areas";
     let method = "POST";

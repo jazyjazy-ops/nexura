@@ -1,10 +1,10 @@
 let productosGenerales = [];
 let modoEdicion = false;
 let productoActualId = null;
-let rolUsuarioActual = null; // Variable global para guardar el rol
+let rolUsuarioActual = null; 
 let paginaActual = 1;
-const registrosPorPagina = 10; // Puedes cambiar esto a 5 o 15
-let datosFiltradosActuales = []; // Guardará los datos que se están mostrando actualmente
+const registrosPorPagina = 10; 
+let datosFiltradosActuales = []; 
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem('nexura_token');
@@ -20,10 +20,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const rolDOM = document.getElementById('rolUsuario');
     if (rolDOM) rolDOM.textContent = usuario.departamento || 'Administración';
     
-    // Guardamos el rol para validaciones en el Frontend
     rolUsuarioActual = usuario.departamento || usuario.rol;
 
-    // Ocultar botón de agregar si el rol no tiene permisos administrativos
     const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero', 'Gerencia de Ventas', 'Jefe de Ingenieria'];
     if (rolesSinPermiso.includes(rolUsuarioActual)) {
         const btnAgregar = document.querySelector(".btn-agregar");
@@ -46,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const marcaABuscar = urlParams.get('marca');
     const areaABuscar = urlParams.get('area');
     const categoriaABuscar = urlParams.get('categoria');
+    const filtroABuscar = urlParams.get('filtro');
 
     if (marcaABuscar) {
         const marcaDecodificada = decodeURIComponent(marcaABuscar);
@@ -59,6 +58,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         const categoriaDecodificada = decodeURIComponent(categoriaABuscar);
         inputBusqueda.value = categoriaDecodificada;
         filtrarProductos({ target: inputBusqueda });
+    } 
+    // NUEVO: Lógica de filtros de Stock desde el Dashboard
+    else if (filtroABuscar === 'stock_bajo') {
+        datosFiltradosActuales = productosGenerales.filter(p => p.stock_actual > 0 && p.stock_actual < p.stock_minimo);
+        inputBusqueda.value = "Stock Bajo";
+        paginaActual = 1;
+        renderizarTablaPaginada();
+    } else if (filtroABuscar === 'sin_stock') {
+        datosFiltradosActuales = productosGenerales.filter(p => p.stock_actual <= 0);
+        inputBusqueda.value = "Agotado";
+        paginaActual = 1;
+        renderizarTablaPaginada();
+    }
+    else if (filtroABuscar === 'normal') {
+        datosFiltradosActuales = productosGenerales.filter(p => p.stock_actual <= 0);
+        inputBusqueda.value = "Agotado";
+        paginaActual = 1;
+        renderizarTablaPaginada();
     }
 });
 
@@ -74,7 +91,6 @@ async function cargarProductos(token) {
             return;
         }
 
-        // VALIDACIÓN: Interceptar el 403
         if (res.status === 403) {
             Swal.fire({
                 icon: "warning",
@@ -96,16 +112,15 @@ async function cargarProductos(token) {
 async function cargarSelects(token) {
     const headers = { "Authorization": `Bearer ${token}` };
     try {
-        // Añadimos el fetch a /api/categorias
         const [resAreas, resCategorias, resMarcas, resEquipos] = await Promise.all([
             fetch("http://localhost:3000/api/areas", { headers }),
-            fetch("http://localhost:3000/api/categorias", { headers }), // NUEVO
+            fetch("http://localhost:3000/api/categorias", { headers }), 
             fetch("http://localhost:3000/api/marcas", { headers }),
             fetch("http://localhost:3000/api/equipos", { headers })
         ]);
 
         const areas = await resAreas.json();
-        const categorias = await resCategorias.json(); // NUEVO
+        const categorias = await resCategorias.json(); 
         const marcas = await resMarcas.json();
         const equipos = await resEquipos.json();
 
@@ -113,7 +128,6 @@ async function cargarSelects(token) {
         selectArea.innerHTML = '<option value="">-- Selecciona Área --</option>';
         areas.forEach(a => selectArea.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
 
-        // NUEVO SELECT DE CATEGORÍAS
         const selectCategoria = document.getElementById('selectCategoria');
         selectCategoria.innerHTML = '<option value="">-- Selecciona Categoría (Opcional) --</option>';
         categorias.forEach(c => selectCategoria.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
@@ -137,9 +151,7 @@ window.prepararNuevoProducto = function() {
     productoActualId = null;
     document.querySelector('#modalProducto h2').textContent = 'Agregar producto';
     document.getElementById('formProducto').reset();
-    
     document.getElementById('selectEstado').value = "1"; 
-    
     abrirModal();
 }
 
@@ -159,9 +171,7 @@ window.prepararEdicion = function(id) {
     document.getElementById('selectCategoria').value = prod.categoria_id || '';
     document.getElementById('selectMarca').value = prod.marca_id || '';
     document.getElementById('selectEquipo').value = prod.equipo_id || '';
-    document.getElementById('inputPrecio').value = prod.precio;
     document.getElementById('inputStockMinimo').value = prod.stock_minimo;
-    
     document.getElementById('selectEstado').value = prod.estado ? "1" : "0";
 
     abrirModal();
@@ -178,10 +188,9 @@ document.getElementById('formProducto').addEventListener('submit', async (e) => 
         presentacion: document.getElementById('inputPresentacion').value,
         descripcion: document.getElementById('inputDescripcion').value,
         area_id: parseInt(document.getElementById('selectArea').value),
-        categoria_id: document.getElementById('selectCategoria').value ? parseInt(document.getElementById('selectCategoria').value) : null, // NUEVO
+        categoria_id: document.getElementById('selectCategoria').value ? parseInt(document.getElementById('selectCategoria').value) : null,
         marca_id: document.getElementById('selectMarca').value ? parseInt(document.getElementById('selectMarca').value) : null,
         equipo_id: document.getElementById('selectEquipo').value ? parseInt(document.getElementById('selectEquipo').value) : null,
-        precio: parseFloat(document.getElementById('inputPrecio').value),
         stock_minimo: parseInt(document.getElementById('inputStockMinimo').value),
         estado: parseInt(document.getElementById('selectEstado').value) 
     };
@@ -204,7 +213,6 @@ document.getElementById('formProducto').addEventListener('submit', async (e) => 
             body: JSON.stringify(payload)
         });
 
-        // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
         if (res.status === 403) {
             Swal.fire({
                 icon: "warning",
@@ -256,10 +264,9 @@ window.eliminarProducto = async function(id) {
             presentacion: prod.presentacion,
             descripcion: prod.descripcion,
             area_id: prod.area_id,
-            categoria_id: prod.categoria_id, // NUEVO
+            categoria_id: prod.categoria_id,
             marca_id: prod.marca_id,
             equipo_id: prod.equipo_id,
-            precio: prod.precio,
             stock_minimo: prod.stock_minimo,
             estado: 0 
         };
@@ -274,7 +281,6 @@ window.eliminarProducto = async function(id) {
                 body: JSON.stringify(payload)
             });
             
-            // VALIDACIÓN: Interceptar el 403 antes de parsear JSON
             if (res.status === 403) {
                 Swal.fire({
                     icon: "warning",
@@ -302,7 +308,11 @@ window.eliminarProducto = async function(id) {
 function filtrarProductos(e) {
     const termino = e.target.value.toLowerCase();
     
-    // Actualizamos el arreglo de datos filtrados
+    // Si el usuario escribe manualmente, se limpia la búsqueda de "Stock Bajo / Sin Stock" y se busca normalmente
+    if (termino === "filtrando: stock bajo" || termino === "filtrando: sin stock") {
+        return; 
+    }
+
     datosFiltradosActuales = productosGenerales.filter(p => {
         return (
             p.nombre.toLowerCase().includes(termino) ||
@@ -313,22 +323,22 @@ function filtrarProductos(e) {
         );
     });
     
-    // Reiniciamos a la página 1 cada vez que se busca algo
     paginaActual = 1; 
     renderizarTablaPaginada();
 }
 
+// --- 7. RENDERIZADO DE LA TABLA ---
 function renderizarTablaPaginada() {
     const tbody = document.getElementById('tablaProductos');
     tbody.innerHTML = '';
 
+    // Recuerda agregar las columnas <td> adicionales a tu colspan si dice "No se encontraron productos"
     if (datosFiltradosActuales.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">No se encontraron productos</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;">No se encontraron productos</td></tr>';
         renderizarControlesPaginacion(0);
         return;
     }
 
-    // Calcular índices de inicio y fin para cortar el arreglo
     const indiceInicio = (paginaActual - 1) * registrosPorPagina;
     const indiceFin = indiceInicio + registrosPorPagina;
     const productosPagina = datosFiltradosActuales.slice(indiceInicio, indiceFin);
@@ -336,7 +346,6 @@ function renderizarTablaPaginada() {
     const rolesSinPermiso = ['Operador', 'Vendedor', 'Ingeniero', 'Gerencia de Ventas', 'Jefe de Ingenieria'];
     const tienePermisosEdicion = !rolesSinPermiso.includes(rolUsuarioActual);
 
-    // Iteramos SOLO sobre los productos de la página actual
     productosPagina.forEach(p => {
         const tr = document.createElement('tr');
         
@@ -350,6 +359,22 @@ function renderizarTablaPaginada() {
             botonesAccion = `<span style="color: #95a5a6; font-size: 0.9em;">Solo lectura</span>`;
         }
 
+        // NUEVO: Cálculos matemáticos del Faltante
+        const stockActual = parseFloat(p.stock_actual || 0); 
+        const stockMinimo = parseFloat(p.stock_minimo || 1);
+        
+        let faltante = 0;
+        if (stockActual < stockMinimo) {
+            faltante = stockMinimo - stockActual;
+        }
+
+        let diseñoFaltante = "";
+        if (faltante > 0) {
+            diseñoFaltante = `<span style="color: #e74c3c; font-weight: bold;">+${faltante}</span>`; // Rojo si falta
+        } else {
+            diseñoFaltante = `<span style="color: #2ecc71;">0</span>`; // Verde si está bien
+        }
+
         tr.innerHTML = `
             <td>${p.sku}</td>
             <td>${p.nombre}</td>
@@ -358,24 +383,24 @@ function renderizarTablaPaginada() {
             <td>${p.categoria_nombre || 'Sin categoría'}</td>
             <td>${p.marca_nombre || 'Sin marca'}</td>
             <td>${p.equipo_nombre || 'General'}</td>
-            <td>${p.stock_minimo}</td>
-            <td>$${Number(p.precio).toFixed(2)}</td>
+            <td>${stockMinimo}</td>
+            <td><strong>${stockActual}</strong></td> <!-- NUEVO: Muestra la suma del stock -->
+            <td>${diseñoFaltante}</td> <!-- NUEVO: Muestra lo que hay que pedir -->
             <td><span class="estado ${p.estado ? 'normal' : 'roja'}">${p.estado ? 'Activo' : 'Inactivo'}</span></td>
             <td>${botonesAccion}</td>
         `;
         tbody.appendChild(tr);
     });
 
-    // Dibujamos los botones de paginación
     renderizarControlesPaginacion(datosFiltradosActuales.length);
 }
 
-// 5. NUEVA FUNCIÓN: Controles de Paginación
+// --- 8. CONTROLES DE PAGINACIÓN ---
 function renderizarControlesPaginacion(totalRegistros) {
     const contenedor = document.getElementById('controlesPaginacion');
     contenedor.innerHTML = '';
 
-    if (totalRegistros <= registrosPorPagina) return; // No mostrar si no hay suficientes datos
+    if (totalRegistros <= registrosPorPagina) return; 
 
     const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
 
